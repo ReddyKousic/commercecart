@@ -1,6 +1,16 @@
 <script lang="ts">
 	import '../app.css';
+	
 	let { children } = $props();
 </script>
+<main>
+	{@render children()}
 
-{@render children()}
+</main>
+
+
+<style>
+main {
+	height: 100vh;
+}
+</style>

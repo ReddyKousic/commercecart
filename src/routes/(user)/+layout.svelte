@@ -6,6 +6,5 @@
 
     let { data, children }: { data: LayoutData, children: Snippet } = $props();
 </script>
-<Credits />
-<StoreDetails />
+<StoreDetails logo={true}/>
 {@render children()}

@@ -1,9 +1,10 @@
 <script>
-    import Authentication from '$lib/assets/Authentication.png';
+	import CustomerAuthentication from '$lib/assets/CustomerAuthentication.svelte';
+	import LoginIcon from '$lib/assets/LoginIcon.svelte';
 </script>
 
 <section class="manage-login-form">
-	<form action="?/ManageLogin" method="POST" class="flex flex-col items-center justify-center">
+	<form action="?/login" method="POST" class="flex flex-col items-center justify-center">
 		<label class="form-control w-full max-w-xs">
 			<div class="label">
 				<span class="label-text">Phone</span>
@@ -32,15 +33,14 @@
 		</label>
 
 		<div class="mt-6 flex w-full max-w-xs flex-col items-center justify-between gap-3">
-			<button class="btn w-full" type="submit">Login</button>
-			<button class="btn w-full" type="button">Recover?</button>
+			<button class="btn w-full" type="submit">Login <LoginIcon /></button>
+			<a href="/signup" class="w-full">
+				<button class="btn w-full" type="button">Create an Account?</button>
+			</a>
 		</div>
 	</form>
-	<div class="flex justify-center items-center">
-		<img src={Authentication} alt="Cart Illustration" class="h-80 mt-6" />
 
-	</div>
-    
+	<CustomerAuthentication />
 </section>
 
 <style>
@@ -49,14 +49,14 @@
 	}
 
 	button[type='submit'] {
-		background-color: #047857;
+		background-color: #ed1c24;
 		color: white;
 		font-family: 'Poppins', sans-serif;
 		font-size: 16px;
 	}
 
 	button[type='button'] {
-		border: 1px solid #047857;
+		border: 1px solid black;
 		font-family: 'Poppins', sans-serif;
 		font-size: 16px;
 	}

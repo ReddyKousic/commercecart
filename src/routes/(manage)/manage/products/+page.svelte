@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ManageLogin from '$lib/components/ManageMenu.svelte';
+	import ManageMenu from '$lib/components/ManageMenu.svelte';
 	import ProductsList from '$lib/components/ProductsList.svelte';
 
 	import { vibrate } from '$lib';
@@ -13,6 +13,5 @@
 	});
 </script>
 
-<ManageLogin />
 
 <ProductsList {data} />

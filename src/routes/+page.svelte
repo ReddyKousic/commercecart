@@ -1,3 +1,13 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
-<button class="btn">Button</button>
+<script lang="ts">
+	import PublicProductsList from '$lib/components/PublicProductsList.svelte';
+	import StoreDetails from '$lib/components/StoreDetails.svelte';
+	import Cart from '$lib/components/Cart.svelte';
+
+	import type { PageData } from './$types';
+	import PublicMenu from '$lib/components/PublicMenu.svelte';
+	export let data: PageData;
+</script>
+<StoreDetails logo={true} />
+<PublicMenu {data} currentPage={"home"}/>
+
+<PublicProductsList {data} />

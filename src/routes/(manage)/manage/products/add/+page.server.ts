@@ -40,7 +40,9 @@ export const actions: Actions = {
                     color: v.color,
                     length: parseInt(v.length),
                     type: v.type,
+                    thickness: v.thickness,
                     price: parseInt(v.price),
+                    discount_percentage: parseFloat(v.discount_percentage) || 0,
                 }))
             );
 
