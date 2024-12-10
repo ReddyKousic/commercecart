@@ -6,7 +6,7 @@
 	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
 	const lengths = ['90', '180'];
 	const types = ['FR', 'FRLS'];
-	const thicknesses = ['0.5mm', '1mm', '1.5mm', '2.5mm', '4mm'];
+	const thicknesses = ["1 Sq.mm", "1.5 Sq.mm", "2.5 Sq.mm", "4 Sq.mm", "6 Sq.mm" ];
 
 	let variations: {
 		color: string;

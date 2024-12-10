@@ -31,7 +31,6 @@
 			address: data.user.address
 		};
 	}
-	
 
 	async function startDownloadQuote() {
 		openModal();
@@ -74,7 +73,6 @@
 		const storedCart = localStorage.getItem('cart');
 		cart = storedCart ? JSON.parse(storedCart) : [];
 		cartJson = JSON.stringify(cart); // Pretty-print JSON for better readability
-
 	});
 
 	$effect(() => {
@@ -161,7 +159,9 @@
 				<input type="text" class="grow" name="address" bind:value={cart} hidden />
 
 				<div class="flex items-center justify-between">
-					<button class="sec btn" type="button">Login?</button>
+					<a href="/login">
+						<button class="sec btn" type="button">Login?</button>
+					</a>
 
 					<button class="btn bg-[#ed1c24] text-white" type="submit">Download Quote</button>
 				</div>
@@ -306,7 +306,9 @@
 				<input type="text" class="input grow" name="cart" bind:value={cartJson} hidden />
 
 				<div class="flex items-center justify-between">
-					<button class="sec btn" type="button">Create an Account?</button>
+					<a href="/signup">
+						<button class="sec btn" type="button">Create an Account?</button>
+					</a>
 
 					<button class="btn bg-[#ed1c24] text-white" type="submit"
 						>Login
