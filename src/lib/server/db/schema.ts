@@ -12,8 +12,8 @@ export const product_variations = mysqlTable('product_variations', {
 	id: int('id').primaryKey().autoincrement(),
 	product_id: int('product_id').notNull().references(() => products.id),
 	color: varchar('color', { length: 255 }),
-	length: int('length'),
-	type: varchar('type', { length: 255 }),
+	// length: int('length'),
+	// type: varchar('type', { length: 255 }),
 	thickness: varchar('thickness', { length: 255 }), // Column for wire thickness
 	price: int('price').notNull(),
 	discount_percentage: decimal('discount_percentage', { precision: 5, scale: 2 }) // Column for discount percentage

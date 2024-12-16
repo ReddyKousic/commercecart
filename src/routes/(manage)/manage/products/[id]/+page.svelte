@@ -65,15 +65,30 @@
 </script>
 
 <div class="mx-auto max-w-4xl px-4 py-8">
-	<div class="mb-4 rounded-lg bg-white p-3 shadow-sm">
+	<div class="mb-4 rounded-lg bg-white p-3 border">
 		{#if !editing}
 			<div class="mb-4 flex items-start justify-between">
 				<div>
 					<h1 class="mb-2 text-3xl font-bold">{product[0].name}</h1>
 					<p class="mb-4 text-gray-600">{product[0].description}</p>
 				</div>
-				<button type="button" on:click={() => (editing = true)} class="rounded px-4 py-2 text-sm hover:bg-blue-600">Edit</button>
+			
+				<button
+					type="button"
+					on:click={() => (editing = true)}
+					class="rounded px-4 py-2 text-sm hover:bg-blue-600">Edit</button
+				>
 			</div>
+			<span
+			class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {product[0]
+				.selling_status === 'active'
+				? 'bg-green-100 text-green-800'
+				: product[0].selling_status === 'inactive'
+					? 'bg-red-100 text-red-800'
+					: 'bg-gray-100 text-gray-800'}"
+		>
+			{product[0].selling_status}
+		</span>
 		{:else}
 			<div class="space-y-4">
 				<label class="input input-bordered flex items-center gap-2">
@@ -82,15 +97,27 @@
 				</label>
 				<label class="input input-bordered flex items-center gap-2">
 					Description
-					<input bind:value={editedProduct.description} type="text" class="grow" placeholder="Description" />
+					<input
+						bind:value={editedProduct.description}
+						type="text"
+						class="grow"
+						placeholder="Description"
+					/>
 				</label>
-				<select bind:value={editedProduct.selling_status} class="max-w select select-bordered w-full" required>
+				<select
+					bind:value={editedProduct.selling_status}
+					class="max-w select select-bordered w-full"
+					required
+				>
 					<option value="active">Active</option>
 					<option value="inactive">Inactive</option>
 				</select>
 				<div class="flex gap-2">
 					<button on:click={saveProduct} class="rounded px-4 py-2">Save</button>
-					<button on:click={() => (editing = false)} class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">Cancel</button>
+					<button
+						on:click={() => (editing = false)}
+						class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">Cancel</button
+					>
 				</div>
 			</div>
 		{/if}
@@ -106,8 +133,8 @@
 					<thead class="bg-gray-50">
 						<tr>
 							<th>Color</th>
-							<th>Length</th>
-							<th>Type</th>
+							<!-- <th>Length</th>
+							<th>Type</th> -->
 							<th>Thickness</th>
 							<th>Price</th>
 							<th>Discount %</th>
@@ -119,8 +146,8 @@
 						{#each variations as variation}
 							<tr>
 								<td>{variation.color || '-'}</td>
-								<td>{variation.length || '-'}</td>
-								<td>{variation.type || '-'}</td>
+								<!-- <td>{variation.length || '-'}</td>
+								<td>{variation.type || '-'}</td> -->
 								<td>{variation.thickness || '-'}</td>
 								<td>
 									{#if editingVariationId === variation.id}
@@ -138,13 +165,22 @@
 								</td>
 								<td>
 									₹
-									{(variation.price - (variation.price * variation.discount_percentage) / 100).toFixed(2)}
+									{(
+										variation.price -
+										(variation.price * variation.discount_percentage) / 100
+									).toFixed(2)}
 								</td>
 								<td>
 									{#if editingVariationId === variation.id}
 										<div class="flex gap-2">
-											<button on:click={() => saveVariation(variation.id)} class="text-sm text-blue-600">Save</button>
-											<button on:click={() => (editingVariationId = null)} class="text-sm text-gray-600">Cancel</button>
+											<button
+												on:click={() => saveVariation(variation.id)}
+												class="text-sm text-blue-600">Save</button
+											>
+											<button
+												on:click={() => (editingVariationId = null)}
+												class="text-sm text-gray-600">Cancel</button
+											>
 										</div>
 									{:else}
 										<button

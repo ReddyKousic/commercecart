@@ -11,7 +11,7 @@
 			{#each data.products as product}
 				<a
 					href={`/manage/products/${product.id}`}
-					class="block rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
+					class="block rounded-lg border p-4 "
 				>
 					<h2 class="text-xl font-semibold">{product.name}</h2>
 					{#if product.description}

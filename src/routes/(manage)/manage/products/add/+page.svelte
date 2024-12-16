@@ -4,14 +4,14 @@
 	export let form: ActionData | null; // Form data returned by the server
 
 	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
-	const lengths = ['90', '180'];
-	const types = ['FR', 'FRLS'];
+	// const lengths = ['90', '180'];
+	// const types = ['FR', 'FRLS'];
 	const thicknesses = ["1 Sq.mm", "1.5 Sq.mm", "2.5 Sq.mm", "4 Sq.mm", "6 Sq.mm" ];
 
 	let variations: {
 		color: string;
-		length: string;
-		type: string;
+		// length: string;
+		// type: string;
 		thickness: string;
 		price: string;
 		discount_percentage: string;
@@ -25,7 +25,9 @@
 	function validateUniqueCombinations() {
 		const seen = new Set();
 		variations.forEach((v, i) => {
-			const key = `${v.color}-${v.length}-${v.type}-${v.thickness}`;
+			// const key = `${v.color}-${v.length}-${v.type}-${v.thickness}`;
+			const key = `${v.color}-${v.thickness}`;
+
 			if (seen.has(key)) {
 				variations[i].error = 'Duplicate combination';
 			} else {
@@ -40,8 +42,8 @@
 			...variations,
 			{
 				color: '',
-				length: '',
-				type: '',
+				// length: '',
+				// type: '',
 				thickness: '',
 				price: '',
 				discount_percentage: '',
@@ -58,7 +60,9 @@
 	function handleSubmit(e: SubmitEvent) {
 		validateUniqueCombinations();
 		const hasErrors = variations.some(
-			(v) => v.error || !v.color || !v.length || !v.type || !v.price
+			// (v) => v.error || !v.color || !v.length || !v.type || !v.price
+			(v) => v.error || !v.color || !v.price
+
 		);
 
 		if (hasErrors) {
@@ -141,7 +145,7 @@
 						</select>
 					</div>
 
-					<div>
+					<!-- <div>
 						<label>Length (Meters)</label>
 						<select bind:value={variation.length} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Length</option>
@@ -149,9 +153,9 @@
 								<option value={length}>{length}</option>
 							{/each}
 						</select>
-					</div>
+					</div> -->
 
-					<div>
+					<!-- <div>
 						<label>Type</label>
 						<select bind:value={variation.type} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Type</option>
@@ -159,7 +163,7 @@
 								<option value={type}>{type}</option>
 							{/each}
 						</select>
-					</div>
+					</div> -->
 
 					<div>
 						<label>Thickness</label>

@@ -52,11 +52,11 @@
 					<div class="text-sm text-gray-600">
 						<h3 class="mb-2 font-semibold">Order Items</h3>
 						<ul class="space-y-2">
-							{#each order.orderData as Array<{ id: number; name: string; type: string; color: string; thickness: number; length: number; quantity: number; price: number; discountedPrice?: number }> as item (item.id)}
+							{#each order.orderData as item}
 								<li class="rounded-md bg-gray-100 p-3">
-									<p class="font-semibold">{item.name} ({item.type})</p>
+									<p class="font-semibold">{item.name}</p>
 									<p class="text-sm">
-										Color: {item.color} | Thickness: {item.thickness} | Length: {item.length}m
+										Color: {item.color} | Thickness: {item.thickness}
 									</p>
 									<p class="text-sm">Quantity: {item.quantity}</p>
 									<p class="text-sm">

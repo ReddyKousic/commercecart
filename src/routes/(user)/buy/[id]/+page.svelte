@@ -1,5 +1,5 @@
 <script>
-// @ts-nocheck
+	// @ts-nocheck
 
 	import { onMount } from 'svelte';
 	import StoreDetails from '$lib/components/StoreDetails.svelte';
@@ -30,8 +30,8 @@
 		const variation = variations.find(
 			(v) =>
 				v.color === selectedColor &&
-				v.length === Number(selectedLength) &&
-				v.type === selectedType &&
+				// v.length === Number(selectedLength) &&
+				// v.type === selectedType &&
 				v.thickness === selectedThickness
 		);
 
@@ -52,8 +52,8 @@
 			(item) =>
 				item.productId === product.id &&
 				item.color === selectedColor &&
-				item.length === selectedLength &&
-				item.type === selectedType &&
+				// item.length === selectedLength &&
+				// item.type === selectedType &&
 				item.thickness === selectedThickness
 		);
 
@@ -66,15 +66,15 @@
 					productId: product.id,
 					name: product.name,
 					color: selectedColor,
-					length: selectedLength,
-					type: selectedType,
+					// length: selectedLength,
+					// type: selectedType,
 					thickness: selectedThickness,
 					price: selectedPrice,
 					variationId: variations.find(
 						(v) =>
 							v.color === selectedColor &&
-							v.length === Number(selectedLength) &&
-							v.type === selectedType &&
+							// v.length === Number(selectedLength) &&
+							// v.type === selectedType &&
 							v.thickness === selectedThickness
 					).id,
 					discountedPrice,
@@ -88,8 +88,8 @@
 		alert('Added to cart!');
 	}
 </script>
-	
-<PublicMenu {data} currentPage={"buy"}/>
+
+<PublicMenu {data} currentPage={'buy'} />
 
 <div class="mx-auto max-w-7xl px-4 py-8">
 	<h1 class="text-center text-2xl font-bold">{product.name}</h1>
@@ -97,7 +97,28 @@
 		<p class="mt-2 text-center text-gray-600">{product.description}</p>
 	{/if}
 
-	<div class="mt-6 space-y-4">
+	<!-- Thickness Selection -->
+	<div>
+		<div class="mt-8 mb-4 flex flex-wrap justify-center gap-2">
+			{#each Array.from(new Set(variations.map((v) => v.thickness))) as thickness}
+				<button
+					class="btn rounded border px-4 py-2 {selectedThickness === thickness
+						? 'bg-[#ed1c24] text-white'
+						: ''}"
+					on:click={() => {
+						selectedThickness = thickness;
+						handleSelection();
+					}}
+				>
+					{thickness}
+				</button>
+			{/each}
+		</div>
+	</div>
+
+	<hr class="">
+
+	<div class="mt-4 space-y-4">
 		<!-- Color Selection -->
 		<div>
 			<div class="mt-2 flex flex-wrap justify-center gap-2">
@@ -118,7 +139,7 @@
 		</div>
 
 		<!-- Length Selection -->
-		<div>
+		<!-- <div>
 			<div class="mt-2 flex flex-wrap justify-center gap-2">
 				{#each Array.from(new Set(variations.map((v) => v.length))) as length}
 					<button
@@ -134,10 +155,10 @@
 					</button>
 				{/each}
 			</div>
-		</div>
+		</div> -->
 
 		<!-- Type Selection -->
-		<div>
+		<!-- <div>
 			<div class="mt-2 flex flex-wrap justify-center gap-2">
 				{#each Array.from(new Set(variations.map((v) => v.type))) as type}
 					<button
@@ -153,26 +174,7 @@
 					</button>
 				{/each}
 			</div>
-		</div>
-
-		<!-- Thickness Selection -->
-		<div>
-			<div class="mt-2 flex flex-wrap justify-center gap-2">
-				{#each Array.from(new Set(variations.map((v) => v.thickness))) as thickness}
-					<button
-						class="btn rounded border px-4 py-2 {selectedThickness === thickness
-							? 'bg-[#ed1c24] text-white'
-							: ''}"
-						on:click={() => {
-							selectedThickness = thickness;
-							handleSelection();
-						}}
-					>
-						{thickness}
-					</button>
-				{/each}
-			</div>
-		</div>
+		</div> -->
 
 		<!-- Price Display -->
 		{#if discountedPrice !== null}
@@ -203,7 +205,5 @@
 			<p class="text-center text-gray-500">Select all options to see the price & add to cart.</p>
 		{/if}
 	</div>
-<Cart />
-
+	<Cart />
 </div>
-

@@ -68,7 +68,7 @@
 				<div class="text-sm text-gray-600">
 					<h3 class="mb-2 font-semibold">Order Items</h3>
 					<ul class="space-y-2">
-						{#each data.order.orderData as Array<{ id: number; name: string; type: string; color: string; thickness: number; length: number; quantity: number; price: number; discountedPrice?: number }> as item (item.id)}
+						{#each data.order.orderData as item}
 							<li class="rounded-md bg-gray-100 p-3">
 								<p class="font-semibold">{item.name} ({item.type})</p>
 								<p class="text-sm">

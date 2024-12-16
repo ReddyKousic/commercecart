@@ -38,8 +38,8 @@ export const actions: Actions = {
                 variationsData.map((v: any) => ({
                     product_id: newProduct.id,
                     color: v.color,
-                    length: parseInt(v.length),
-                    type: v.type,
+                    // length: parseInt(v.length),
+                    // type: v.type,
                     thickness: v.thickness,
                     price: parseInt(v.price),
                     discount_percentage: parseFloat(v.discount_percentage) || 0,
