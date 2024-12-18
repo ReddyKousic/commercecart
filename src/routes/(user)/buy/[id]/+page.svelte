@@ -205,5 +205,23 @@
 			<p class="text-center text-gray-500">Select all options to see the price & add to cart.</p>
 		{/if}
 	</div>
+	
 	<Cart />
+
+	<a href="/cart" class="btn-sps flex-1 rounded-sm p-4 text-center">Download Quote</a>
+
 </div>
+
+<style>
+	.btn-sps {
+		background-color: #ed1c24;
+		color: white;
+		font-family: 'Poppins', sans-serif;
+		font-size: 16px;
+		border-radius: 20px;
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

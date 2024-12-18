@@ -5,16 +5,20 @@
 	import logo from '$lib/assets/MainLogo.png';
 	let { data }: { data: PageData } = $props();
 
-	let name = $state('Kosuic Thavva');
-	let phone = $state('999999999');
-	let email = $state('kousicreddy39@gmail.com');
-	let address = $state('101/22H, West Street, Kovilpatti, Tuticorin, Tamilnadu, India');
+	let name = $state('');
+	let phone = $state('');
+	let email = $state('');
+	let address = $state('');
+	let gstin = $state('');
+
 
 	// cart is of type [{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }]
 	
 
 	
-	let cart = $state<{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }[]>([]);
+	// let cart = $state<{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }[]>([]);
+	let cart = $state<{ name: string, color: string, price: number, thickness: string, discountedPrice: number, quantity: number }[]>([]);
+
 	let isDataLoaded = $state(false);
 
 	onMount(() => {
@@ -23,6 +27,8 @@
 		const storedPhone = localStorage.getItem('customer_phone');
 		const storedAddress = localStorage.getItem('customer_address');
 		const storedCart = localStorage.getItem('cart');
+		const storedGSTIN = localStorage.getItem('gstin');
+
 
 		// Check if required data exists
 		if (!storedName || !storedPhone || !storedAddress || !storedCart) {
@@ -33,6 +39,7 @@
 		// Set the values
 		name = storedName;
 		phone = storedPhone;
+		gstin = storedGSTIN || '';
 		address = storedAddress;
 		cart = JSON.parse(storedCart);
 
@@ -75,7 +82,7 @@
 			<!-- Header with Logo -->
 			<div class="rounded-t-lg p-6">
 				<div class="mb-4 flex items-center justify-between">
-					<img src={logo} alt="Koastec Logo" class="h-20 w-auto" />
+					<img src={logo} alt="WireGuy Logo" class="h-20 w-auto" />
 					<div>
 						<h1 class="text-3xl font-bold">Quotation</h1>
 						<p class="text-sm opacity-90">Valid for 15 days</p>
@@ -90,11 +97,20 @@
 						<p class="font-medium">{name}</p>
 						<p>{address}</p>
 						<p>Phone: {phone}</p>
-						<p>Email: {email}</p>
+						{#if email !== ""}
+							<p>Email: {email}</p>
+						{/if} 
+						{#if gstin !== "No GSTIN provided"}
+							<p>GSTIN: {gstin}</p>
+						{/if}
+			
+				
+
 					</div>
 					<div class="text-right">
-						<p class="text-sm">Quote Date: {quoteDate.toLocaleDateString()}</p>
-						<p class="text-sm">Valid Until: {validUntil.toLocaleDateString()}</p>
+						<p class="text-sm">Quote Date: {quoteDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+						<p class="text-sm">Valid Until: {validUntil.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+						
 					</div>
 				</div>
 			</div>
@@ -118,8 +134,10 @@
 								<td>{item.name}</td>
 								<td>
 									<span class="badge badge-ghost mr-1">{item.color}</span>
-									<span class="badge badge-ghost mr-1">{item.length}m</span>
-									<span class="badge badge-ghost">{item.type}</span>
+									<span class="badge badge-ghost mr-1">{item.thickness}</span>
+
+									<!-- <span class="badge badge-ghost mr-1">{item.length}m</span>
+									<span class="badge badge-ghost">{item.type}</span> -->
 								</td>
 								<td>{item.quantity}</td>
 								<td>

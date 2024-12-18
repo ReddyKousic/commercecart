@@ -51,6 +51,18 @@
 				readonly
 			/>
 		</label>
+		<label class="form-control">
+			<div class="label">
+				<span class="label-text">GSTIN</span>
+			</div>
+			<input
+				type="text"
+				placeholder="Your GSTIN"
+				value={data.user.gstin}
+				class="input input-bordered"
+				readonly
+			/>
+		</label>
 
 		<label class="form-control mb-4">
 			<div class="label">

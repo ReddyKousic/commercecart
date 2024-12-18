@@ -28,6 +28,7 @@ export const customers = mysqlTable('customers', {
 	email: varchar('email', { length: 255 }),
 	phone: varchar('phone', { length: 255 }).notNull(),
 	address: text('address'),
+	gstin: text('gstin'),
 	password: varchar('password', { length: 255 }).notNull(),
 	sessionId: varchar('sessionId', { length: 255 }),
 	sessionEOL: datetime('sessionEOL'),
@@ -44,6 +45,7 @@ export const orders = mysqlTable('orders', {
 	co_name: varchar('co_name', { length: 255 }).notNull(),
 	co_address: text('co_address').notNull(),
 	co_email: varchar('co_email', { length: 255 }),
+	co_gstin:  text('co_gstin'),
 	delivery_notes: text('delivery_notes'),
 	delivery_date: datetime('delivery_date'),
 	

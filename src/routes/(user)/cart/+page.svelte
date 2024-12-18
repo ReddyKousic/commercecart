@@ -8,7 +8,7 @@
 		data
 	}: {
 		form: ActionData | null;
-		data: { user: { id: number; phone: string; name: string; email?: string; address: string } };
+		data: { user: { id: number; phone: string; name: string; email?: string; gstin?:string; address: string,} };
 	} = $props();
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -20,6 +20,7 @@
 		name: '',
 		phone: '',
 		email: '',
+		gstin: '',
 		address: ''
 	});
 
@@ -28,6 +29,8 @@
 			name: data.user.name,
 			phone: data.user.phone,
 			email: data.user.email || '',
+			gstin: data.user.gstin || '',
+
 			address: data.user.address
 		};
 	}
@@ -43,6 +46,8 @@
 		localStorage.setItem('customer_phone', customer.phone);
 		localStorage.setItem('customer_email', customer.email);
 		localStorage.setItem('customer_address', customer.address);
+		localStorage.setItem('gstin', customer.gstin);
+
 
 		goto('/quote');
 	}
@@ -139,10 +144,24 @@
 						type="email"
 						class="grow"
 						name="email"
-						placeholder="example@wireguy.in"
+						placeholder="Optional"
 						bind:value={customer.email}
 					/>
 				</label>
+
+
+				
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					GSTIN
+					<input
+						type="text"
+						class="grow"
+						name="email"
+						placeholder="Optional"
+						bind:value={customer.gstin}
+					/>
+				</label>
+				
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Address
 					<input

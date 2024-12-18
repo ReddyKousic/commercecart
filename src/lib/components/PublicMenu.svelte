@@ -8,7 +8,7 @@
 
 <div class="menu flex flex-row items-center justify-between gap-2">
 	<!-- Dynamic Buttons -->
-	{#if currentPage === 'cart' || currentPage === 'buy'}
+	{#if currentPage === 'cart'}
 		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>
 		{#if data.user}
 			<a href="/account" class="menu-item btn flex-1 rounded-sm p-2 text-center">Account</a>
@@ -16,6 +16,9 @@
 		{:else}
 			<a href="/login" class="menu-item btn flex-1 rounded-sm p-2 text-center">Login</a>
 		{/if}
+	{:else if currentPage === 'buy'}
+		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>
+		<a href="/cart" class="menu-item btn flex-1 rounded-sm p-2 text-center">Cart & Quote</a>
 	{:else if currentPage === 'account'}
 		<a href="/cart" class="menu-item btn flex-1 rounded-sm p-2 text-center">Cart</a>
 		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>

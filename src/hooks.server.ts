@@ -29,7 +29,9 @@ export const handle: Handle = async ({ event, resolve }) => {
                 phone: userRecord[0].phone,
                 name: userRecord[0].name,
                 email: userRecord[0].email || "No Email provided",
-                address: userRecord[0].address || "No Address provided"
+                address: userRecord[0].address || "No Address provided",
+                gstin: userRecord[0].gstin || "No GSTIN provided"
+
             };
             
             // Redirect authenticated customers away from login

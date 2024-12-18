@@ -70,6 +70,17 @@
 				name="email"
 			/>
 		</label>
+		<label class="form-control w-full max-w-xs">
+			<div class="label">
+				<span class="label-text">GSTIN</span>
+			</div>
+			<input
+				type="text"
+				placeholder="Optional"
+				class="input input-bordered w-full max-w-xs"
+				name="gstin"
+			/>
+		</label>
 
 		<label class="form-control w-full max-w-xs">
 			<div class="label">
