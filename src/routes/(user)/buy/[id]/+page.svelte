@@ -17,6 +17,7 @@
 		price: number;
 		name: string;
 		discountedPrice: number;
+		description: string;
 	}
 
 	let quantities: Record<string, Record<string, number>> = $state({});
@@ -76,7 +77,8 @@
 					color,
 					quantity: newQuantity,
 					price: variation.price,
-					discountedPrice: price
+					discountedPrice: price,
+					description: data.product[0].description
 				}
 			];
 		}
@@ -134,7 +136,7 @@
 						<p class="font-medium">{color}</p>
 						<div class="flex items-center space-x-2">
 							<button
-								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
 								on:click={() => decrement(variation.thickness, color)}
 							>
 								-
@@ -143,7 +145,7 @@
 								{variation.thickness && color ? quantities[variation.thickness][color] : 0}
 							</span>
 							<button
-								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
 								on:click={() => increment(variation.thickness, color)}
 							>
 								+
@@ -158,7 +160,7 @@
 <div class="fixed bottom-0 left-0 right-0 z-50 border-t bg-white p-4 shadow-lg">
 	<div class="mx-auto flex max-w-5xl items-center justify-between gap-2">
 		<div class="text-lg font-bold">
-			₹{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+			₹{cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0).toFixed(2)}
 		</div>
 		<a
 			href="/cart"

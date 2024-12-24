@@ -11,13 +11,9 @@
 	let address = $state('');
 	let gstin = $state('');
 
-
 	// cart is of type [{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }]
-	
 
-	
-	// let cart = $state<{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }[]>([]);
-	let cart = $state<{ name: string, color: string, price: number, thickness: string, discountedPrice: number, quantity: number }[]>([]);
+	let cart = $state<{ name: string, color: string, price: number, thickness: string, discountedPrice: number, quantity: number, description: string }[]>([]);
 
 	let isDataLoaded = $state(false);
 
@@ -28,7 +24,6 @@
 		const storedAddress = localStorage.getItem('customer_address');
 		const storedCart = localStorage.getItem('cart');
 		const storedGSTIN = localStorage.getItem('gstin');
-
 
 		// Check if required data exists
 		if (!storedName || !storedPhone || !storedAddress || !storedCart) {
@@ -59,11 +54,12 @@
 	// Calculate totals using runes
 	let subtotal = $state(0);
 	let total = $state(0);
+	let deliveryCharge = 500;  // Flat delivery charge of ₹500
 
 	// Update calculations when cart changes
 	$effect(() => {
 		subtotal = cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0);
-		total = subtotal;
+		total = subtotal + deliveryCharge;  // Add delivery charge to the total
 	});
 </script>
 
@@ -103,20 +99,16 @@
 						{#if gstin !== "No GSTIN provided"}
 							<p>GSTIN: {gstin}</p>
 						{/if}
-			
-				
-
 					</div>
 					<div class="text-right">
 						<p class="text-sm">Quote Date: {quoteDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 						<p class="text-sm">Valid Until: {validUntil.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-						
 					</div>
 				</div>
 			</div>
 
 			<!-- Items Table -->
-			<div class="overflow-x-auto p-6">
+			<div class="overflow-x-auto p-2">
 				<table class="table table-zebra w-full">
 					<thead>
 						<tr>
@@ -135,9 +127,7 @@
 								<td>
 									<span class="badge badge-ghost mr-1">{item.color}</span>
 									<span class="badge badge-ghost mr-1">{item.thickness}</span>
-
-									<!-- <span class="badge badge-ghost mr-1">{item.length}m</span>
-									<span class="badge badge-ghost">{item.type}</span> -->
+									<span class="badge badge-ghost mr-1">{item.description}</span>
 								</td>
 								<td>{item.quantity}</td>
 								<td>
@@ -158,6 +148,10 @@
 						<div class="mb-2 flex justify-between">
 							<span>Subtotal:</span>
 							<span>₹{subtotal.toLocaleString()}</span>
+						</div>
+						<div class="mb-2 flex justify-between">
+							<span>Delivery Charges:</span>
+							<span>₹{deliveryCharge.toLocaleString()}</span>
 						</div>
 						<div class="mb-2 flex justify-between">
 							<span>Taxes:</span>

@@ -60,7 +60,7 @@
 		background-color: #ed1c24;
 		color: white;
 		font-family: 'Poppins', sans-serif;
-		font-size: 16px;
+		font-size: 14px;
 		border-radius: 20px;
 		text-decoration: none;
 		display: flex;

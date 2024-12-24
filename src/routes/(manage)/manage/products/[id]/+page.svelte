@@ -132,7 +132,7 @@
 				<table class="table divide-y divide-gray-200">
 					<thead class="bg-gray-50">
 						<tr>
-							<th>Color</th>
+							<!-- <th>Color</th> -->
 							<!-- <th>Length</th>
 							<th>Type</th> -->
 							<th>Thickness</th>
@@ -145,7 +145,7 @@
 					<tbody class="divide-y divide-gray-200 bg-white">
 						{#each variations as variation}
 							<tr>
-								<td>{variation.color || '-'}</td>
+								<!-- <td>{variation.color || '-'}</td> -->
 								<!-- <td>{variation.length || '-'}</td>
 								<td>{variation.type || '-'}</td> -->
 								<td>{variation.thickness || '-'}</td>
