@@ -164,7 +164,7 @@
 			href="/cart"
 			class="flex items-center space-x-2 rounded-lg btnMx px-6 py-3 font-medium text-white"
 		>
-			<span>Quote or Checkout</span>
+			<span>Proceed</span>
 		</a>
 	</div>
 </div>
