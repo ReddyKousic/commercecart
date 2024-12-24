@@ -11,7 +11,7 @@ export const products = mysqlTable('products', {
 export const product_variations = mysqlTable('product_variations', {
 	id: int('id').primaryKey().autoincrement(),
 	product_id: int('product_id').notNull().references(() => products.id),
-	color: varchar('color', { length: 255 }),
+	// color: varchar('color', { length: 255 }),
 	// length: int('length'),
 	// type: varchar('type', { length: 255 }),
 	thickness: varchar('thickness', { length: 255 }), // Column for wire thickness
@@ -64,3 +64,11 @@ export const store_managers = mysqlTable('store_managers', {
 	sessionEOL: datetime('sessionEOL'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow(),
 });
+
+export const partners = mysqlTable('partners', {
+	id: int('id').primaryKey().autoincrement(),
+	partner_name: varchar('partner_name', { length: 255 }).notNull(),
+	partner_phone: varchar('partner_phone', { length: 255 }),
+	partner_code: varchar('partner_code', { length: 255 }).notNull(),
+	created_at: timestamp('uploaded_on').notNull().defaultNow(),
+})

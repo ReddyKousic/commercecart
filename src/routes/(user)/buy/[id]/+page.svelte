@@ -1,219 +1,204 @@
-<script>
-	// @ts-nocheck
-
-	import { onMount } from 'svelte';
-	import StoreDetails from '$lib/components/StoreDetails.svelte';
+<script lang="ts">
+	import { vibrate } from '$lib';
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
-	import Cart from '$lib/components/Cart.svelte';
+	import type { PageData } from './$types';
+	import { onMount } from 'svelte';
 
-	export let data;
+	let { data }: { data: PageData } = $props();
+	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
 
-	let product = data.product[0];
-	let variations = data.variations;
-	let selectedColor = '';
-	let selectedLength = '';
-	let selectedType = '';
-	let selectedThickness = '';
-	let selectedPrice = null;
-	let discountedPrice = null;
-	let discountPercentage = null;
-	let quantity = 1;
+	interface CartItem {
+		variationId: number;
 
-	let cart = [];
-
-	onMount(() => {
-		const storedCart = localStorage.getItem('cart');
-		cart = storedCart ? JSON.parse(storedCart) : [];
-	});
-
-	function handleSelection() {
-		const variation = variations.find(
-			(v) =>
-				v.color === selectedColor &&
-				// v.length === Number(selectedLength) &&
-				// v.type === selectedType &&
-				v.thickness === selectedThickness
-		);
-
-		if (variation) {
-			selectedPrice = variation.price;
-			discountPercentage = variation.discount_percentage || 0;
-			discountedPrice = selectedPrice - (selectedPrice * discountPercentage) / 100;
-		} else {
-			selectedPrice = null;
-			discountedPrice = null;
-		}
+		productId: number;
+		thickness: string;
+		color: string;
+		quantity: number;
+		price: number;
+		name: string;
+		discountedPrice: number;
 	}
 
-	function addToCart() {
-		if (!discountedPrice || !quantity) return;
+	let quantities: Record<string, Record<string, number>> = $state({});
+	let cart: CartItem[] = $state([]);
 
-		const existingItem = cart.find(
+	// Initialize quantities
+	data.variations.forEach((variation) => {
+		quantities[variation.thickness] = {};
+		colors.forEach((color) => {
+			quantities[variation.thickness][color] = 0;
+		});
+	});
+
+	onMount(() => {
+		// Load cart from localStorage on component mount
+		const savedCart = localStorage.getItem('cart');
+		if (savedCart) {
+			cart = JSON.parse(savedCart);
+			// Update quantities based on cart
+			cart.forEach((item) => {
+				quantities[item.thickness][item.color] = item.quantity;
+			});
+		}
+	});
+
+	function updateCart(thickness: string, color: string, newQuantity: number) {
+		const variation = data.variations.find((v) => v.thickness === thickness);
+		if (!variation) return;
+
+		const price = variation.discount_percentage
+			? variation.price - (variation.price * parseFloat(variation.discount_percentage)) / 100
+			: variation.price;
+
+		const cartItemIndex = cart.findIndex(
 			(item) =>
-				item.productId === product.id &&
-				item.color === selectedColor &&
-				// item.length === selectedLength &&
-				// item.type === selectedType &&
-				item.thickness === selectedThickness
+				item.productId === data.product[0].id &&
+				item.thickness === thickness &&
+				item.color === color
 		);
 
-		if (existingItem) {
-			existingItem.quantity += quantity;
-		} else {
+		if (newQuantity === 0 && cartItemIndex !== -1) {
+			// Remove item from cart
+			cart = cart.filter((_, index) => index !== cartItemIndex);
+		} else if (cartItemIndex !== -1) {
+			// Update existing item
+			cart[cartItemIndex].quantity = newQuantity;
+			cart = [...cart]; // Trigger reactivity
+		} else if (newQuantity > 0) {
+			// Add new item
 			cart = [
 				...cart,
 				{
-					productId: product.id,
-					name: product.name,
-					color: selectedColor,
-					// length: selectedLength,
-					// type: selectedType,
-					thickness: selectedThickness,
-					price: selectedPrice,
-					variationId: variations.find(
-						(v) =>
-							v.color === selectedColor &&
-							// v.length === Number(selectedLength) &&
-							// v.type === selectedType &&
-							v.thickness === selectedThickness
-					).id,
-					discountedPrice,
-					quantity
+					variationId: variation ? variation.id : 0,
+					productId: data.product[0].id,
+					name: data.product[0].name,
+					thickness,
+					color,
+					quantity: newQuantity,
+					price: variation.price,
+					discountedPrice: price
 				}
 			];
 		}
 
+		// Save to localStorage
 		localStorage.setItem('cart', JSON.stringify(cart));
-		window.location.reload();
-		alert('Added to cart!');
+	}
+
+	function increment(thickness: string, color: string) {
+		quantities[thickness][color]++;
+		updateCart(thickness, color, quantities[thickness][color]);
+		vibrate();
+
+	}
+
+	function decrement(thickness: string, color: string) {
+		if (quantities[thickness][color] > 0) {
+			quantities[thickness][color]--;
+			updateCart(thickness, color, quantities[thickness][color]);
+		vibrate();
+
+		}
 	}
 </script>
 
-<PublicMenu {data} currentPage={'buy'} />
+<PublicMenu currentPage={'buy'} {data} />
 
-<div class="mx-auto max-w-7xl px-4 py-8">
-	<h1 class="text-center text-2xl font-bold">{product.name}</h1>
-	{#if product.description}
-		<p class="mt-2 text-center text-gray-600">{product.description}</p>
-	{/if}
-
-	<!-- Thickness Selection -->
-	<div>
-		<div class="mt-8 mb-4 flex flex-wrap justify-center gap-2">
-			{#each Array.from(new Set(variations.map((v) => v.thickness))) as thickness}
-				<button
-					class="btn rounded border px-4 py-2 {selectedThickness === thickness
-						? 'bg-[#ed1c24] text-white'
-						: ''}"
-					on:click={() => {
-						selectedThickness = thickness;
-						handleSelection();
-					}}
-				>
-					{thickness}
-				</button>
-			{/each}
-		</div>
-	</div>
-
-	<hr class="">
-
-	<div class="mt-4 space-y-4">
-		<!-- Color Selection -->
-		<div>
-			<div class="mt-2 flex flex-wrap justify-center gap-2">
-				{#each Array.from(new Set(variations.map((v) => v.color))) as color}
-					<button
-						class="btn rounded border px-4 py-2 {selectedColor === color
-							? 'bg-[#ed1c24] text-white'
-							: ''}"
-						on:click={() => {
-							selectedColor = color;
-							handleSelection();
-						}}
-					>
-						{color}
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<!-- Length Selection -->
-		<!-- <div>
-			<div class="mt-2 flex flex-wrap justify-center gap-2">
-				{#each Array.from(new Set(variations.map((v) => v.length))) as length}
-					<button
-						class="btn rounded border px-4 py-2 {selectedLength == length
-							? 'bg-[#ed1c24] text-white'
-							: ''}"
-						on:click={() => {
-							selectedLength = length;
-							handleSelection();
-						}}
-					>
-						{length} meters
-					</button>
-				{/each}
-			</div>
-		</div> -->
-
-		<!-- Type Selection -->
-		<!-- <div>
-			<div class="mt-2 flex flex-wrap justify-center gap-2">
-				{#each Array.from(new Set(variations.map((v) => v.type))) as type}
-					<button
-						class="btn rounded border px-4 py-2 {selectedType === type
-							? 'bg-[#ed1c24] text-white'
-							: ''}"
-						on:click={() => {
-							selectedType = type;
-							handleSelection();
-						}}
-					>
-						{type}
-					</button>
-				{/each}
-			</div>
-		</div> -->
-
-		<!-- Price Display -->
-		{#if discountedPrice !== null}
-			<div>
-				<p class="text-center text-lg">
-					<span class="text-gray-500 line-through">₹{selectedPrice}</span>
-					<span class="text-2xl font-semibold text-red-600">₹{discountedPrice.toFixed(2)}</span>
-				</p>
-			</div>
-
-			<!-- Quantity Selection -->
-			<div class="mt-2 flex items-center justify-center gap-2">
-				<div class="flex items-center overflow-hidden rounded border">
-					<button class="px-3 py-1" on:click={() => (quantity = Math.max(1, quantity - 1))}
-						>-</button
-					>
-					<span class="min-w-[3rem] border-x px-4 py-1 text-center">{quantity}</span>
-					<button class="px-3 py-1" on:click={() => (quantity = quantity + 1)}>+</button>
-				</div>
-			</div>
-			<button
-				class="m-auto mt-4 block rounded bg-[#ed1c24] px-4 py-2 text-white"
-				on:click={addToCart}
-			>
-				Add to Cart
-			</button>
-		{:else}
-			<p class="text-center text-gray-500">Select all options to see the price & add to cart.</p>
-		{/if}
-	</div>
-	
-	<Cart />
-
-	<a href="/cart" class="btn-sps flex-1 rounded-sm p-4 text-center">Download Quote</a>
-
+<div class="heading">
+	<h1 class="mt-4 text-center text-2xl font-bold">{data.product[0].name}</h1>
+	<p class="mt-2 text-center text-lg">{data.product[0].description}</p>
 </div>
 
+<div class="grid grid-cols-1 gap-6 p-2 md:grid-cols-2 lg:grid-cols-3">
+	{#each data.variations as variation}
+		<div class="mb-2 block rounded-lg border p-4 shadow-sm">
+			<div class="sub-heading flex justify-between">
+				<h2 class="text-2xl font-medium">{variation.thickness}</h2>
+				<div class="prices flex flex-col">
+					{#if variation.discount_percentage && parseFloat(variation.discount_percentage) > 0}
+						<h2 class="text-gray-500 line-through">₹{variation.price}</h2>
+						<h2 class="font-bold text-red-600">
+							₹{(
+								variation.price -
+								(variation.price * parseFloat(variation.discount_percentage)) / 100
+							).toFixed(2)}
+						</h2>
+					{:else}
+						<h2 class="font-bold text-red-600">₹{variation.price}</h2>
+					{/if}
+				</div>
+			</div>
+			<div class="colors mt-3 flex flex-col space-y-2">
+				{#each colors as color}
+					<div class="flex items-center justify-between">
+						<p class="font-medium">{color}</p>
+						<div class="flex items-center space-x-2">
+							<button
+								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+								on:click={() => decrement(variation.thickness, color)}
+							>
+								-
+							</button>
+							<span class="w-8 text-center">
+								{variation.thickness && color ? quantities[variation.thickness][color] : 0}
+							</span>
+							<button
+								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+								on:click={() => increment(variation.thickness, color)}
+							>
+								+
+							</button>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/each}
+</div>
+<div class="fixed bottom-0 left-0 right-0 z-50 border-t bg-white p-4 shadow-lg">
+	<div class="mx-auto flex max-w-5xl items-center justify-between gap-2">
+		<div class="text-lg font-bold">
+			₹{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+		</div>
+		<a
+			href="/cart"
+			class="flex items-center space-x-2 rounded-lg btnMx px-6 py-3 font-medium text-white"
+		>
+			<span>Quote or Checkout</span>
+		</a>
+	</div>
+</div>
+<!-- Cart Summary -->
+<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-52 shadow">
+	<h2 class="mb-4 text-xl font-bold">Cart Summary</h2>
+	{#if cart.length === 0}
+		<p class="text-gray-500">Your cart is empty</p>
+	{:else}
+		<div class="space-y-2">
+			{#each cart as item}
+				<div class="flex items-center justify-between border-b py-2">
+					<div>
+						<p class="font-medium">{item.name}</p>
+						<p class="text-sm text-gray-600">
+							{item.thickness} - {item.color}
+						</p>
+					</div>
+					<div class="text-right">
+						<p class="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+						<p class="text-sm text-gray-600">Qty: {item.quantity}</p>
+					</div>
+				</div>
+			{/each}
+			<div class="pt-4 text-right font-bold">
+				Total: ₹{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+			</div>
+		</div>
+	{/if}
+</div>
+
+
 <style>
-	.btn-sps {
+	.btnMx {
 		background-color: #ed1c24;
 		color: white;
 		font-family: 'Poppins', sans-serif;
