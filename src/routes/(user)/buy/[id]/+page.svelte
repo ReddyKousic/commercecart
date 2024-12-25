@@ -143,9 +143,9 @@
 
 		goto('/quote');
 	}
-	onMount(() => {
-		openModal();
-	});
+	// onMount(() => {
+	// 	openModal();
+	// });
 </script>
 
 <PublicMenu currentPage={'buy'} {data} />
