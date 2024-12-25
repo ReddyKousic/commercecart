@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { vibrate } from '$lib';
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
 	import type { PageData } from './$types';
@@ -87,21 +88,64 @@
 		localStorage.setItem('cart', JSON.stringify(cart));
 	}
 
+	let modal: HTMLDialogElement;
+
+	let customer = $state({
+		name: '',
+		phone: '',
+		email: '',
+		gstin: '',
+		address: '',
+		pincode: '',
+		partner_code: ''
+	});
+	if (data.user) {
+		customer = {
+			name: data.user.name,
+			phone: data.user.phone,
+			email: data.user.email || '',
+
+			address: data.user.address
+		};
+	}
+	const openModal = () => {
+		modal.showModal();
+	};
+
+	const closeModal = () => {
+		modal.close();
+	};
 	function increment(thickness: string, color: string) {
 		quantities[thickness][color]++;
 		updateCart(thickness, color, quantities[thickness][color]);
 		vibrate();
-
 	}
 
 	function decrement(thickness: string, color: string) {
 		if (quantities[thickness][color] > 0) {
 			quantities[thickness][color]--;
 			updateCart(thickness, color, quantities[thickness][color]);
-		vibrate();
-
+			vibrate();
 		}
 	}
+
+	async function handleDownloadQuote(event: { preventDefault: () => void }) {
+		event.preventDefault();
+
+		localStorage.setItem('customer_name', customer.name);
+		localStorage.setItem('partner_code', customer.partner_code);
+
+		localStorage.setItem('customer_phone', customer.phone);
+		localStorage.setItem('customer_email', customer.email);
+		localStorage.setItem('customer_address', customer.address);
+		localStorage.setItem('gstin', customer.gstin);
+		localStorage.setItem('pincode', customer.pincode);
+
+		goto('/quote');
+	}
+	onMount(() => {
+		openModal();
+	});
 </script>
 
 <PublicMenu currentPage={'buy'} {data} />
@@ -162,12 +206,12 @@
 		<div class="text-lg font-bold">
 			₹{cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0).toFixed(2)}
 		</div>
-		<a
-			href="/cart"
-			class="flex items-center space-x-2 rounded-lg btnMx px-6 py-3 font-medium text-white"
+		<button
+			class="btnMx btn flex items-center space-x-2 rounded-lg px-6 py-3 font-medium text-white"
+			on:click={openModal}
 		>
 			<span>Proceed</span>
-		</a>
+		</button>
 	</div>
 </div>
 <!-- Cart Summary -->
@@ -198,6 +242,121 @@
 	{/if}
 </div>
 
+<dialog id="DownloadQuoteModal" class="modal modal-bottom sm:modal-middle" bind:this={modal}>
+	<div class="modal-box">
+		{#if cart.length === 0}
+			<p class="text-gray-500">
+				Your cart is empty. Add items to the cart to order or download the quote.
+			</p>
+		{:else}
+			{#if data.user}
+				<h3 class="text-lg font-bold">Confirm the data</h3>
+			{:else}
+				<h3 class="text-lg font-bold">Download or CheckOut</h3>
+			{/if}
+			<p class="py-4">The following details will be included in the Quote PDF</p>
+
+			<form method="post" on:submit={handleDownloadQuote}>
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Name
+
+					<input
+						type="text"
+						class="grow"
+						name="name"
+						placeholder="MD Waasim"
+						bind:value={customer.name}
+						required
+					/>
+				</label>
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Partner Code
+					<input
+						type="tel"
+						class="grow"
+						name="partner_code"
+						placeholder="Optional"
+						minlength="10"
+						maxlength="10"
+						bind:value={customer.partner_code}
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Phone
+					<input
+						type="tel"
+						class="grow"
+						name="phone"
+						placeholder="9999999999"
+						minlength="10"
+						maxlength="10"
+						bind:value={customer.phone}
+						required
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Email
+					<input
+						type="email"
+						class="grow"
+						name="email"
+						placeholder="Optional"
+						bind:value={customer.email}
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					GSTIN
+					<input
+						type="text"
+						class="grow"
+						name="email"
+						placeholder="Optional"
+						bind:value={customer.gstin}
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Address
+					<input
+						type="text"
+						class="grow"
+						name="address"
+						placeholder="101, Royal Enclave, New RTC colony, Patamata, Vijayawada 520007"
+						aria-label="address"
+						bind:value={customer.address}
+						required
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Pincode
+					<input
+						type="text"
+						class="grow"
+						name="pincode"
+						placeholder="520007"
+						aria-label="pincode"
+						bind:value={customer.pincode}
+						required
+					/>
+				</label>
+
+				<input type="text" class="grow" name="address" bind:value={cart} hidden />
+
+				<div class="flex items-center justify-between">
+					<a href="/cart">
+						<button class="sec btn" type="button">Checkout</button>
+					</a>
+
+					<button class="btn bg-[#ed1c24] text-white" type="submit">Download Quote</button>
+				</div>
+			</form>
+		{/if}
+	</div>
+</dialog>
 
 <style>
 	.btnMx {
