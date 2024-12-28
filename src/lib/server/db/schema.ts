@@ -70,5 +70,6 @@ export const partners = mysqlTable('partners', {
 	partner_name: varchar('partner_name', { length: 255 }).notNull(),
 	partner_phone: varchar('partner_phone', { length: 255 }),
 	partner_code: varchar('partner_code', { length: 255 }).notNull(),
+	overall_discount: decimal('overall_discount', { precision: 5, scale: 2 }).default('0'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow(),
 })

@@ -10,20 +10,22 @@
 	let email = $state('');
 	let address = $state('');
 	let gstin = $state('');
-
-	// cart is of type [{ name: string, color: string, length: number, type: string, price: number, discountedPrice: number, quantity: number }]
+	let partnerCode = $state('');
+	let partnerDiscountPercentage = $state(0);
 
 	let cart = $state<{ name: string, color: string, price: number, thickness: string, discountedPrice: number, quantity: number, description: string }[]>([]);
 
 	let isDataLoaded = $state(false);
 
 	onMount(() => {
-		// Get customer details from localStorage
+		// Get all details from localStorage
 		const storedName = localStorage.getItem('customer_name');
 		const storedPhone = localStorage.getItem('customer_phone');
 		const storedAddress = localStorage.getItem('customer_address');
 		const storedCart = localStorage.getItem('cart');
 		const storedGSTIN = localStorage.getItem('gstin');
+		const storedPartnerCode = localStorage.getItem('partner_code');
+		const storedPartnerDiscount = localStorage.getItem('partner_overall_discount_percentage');
 
 		// Check if required data exists
 		if (!storedName || !storedPhone || !storedAddress || !storedCart) {
@@ -37,6 +39,8 @@
 		gstin = storedGSTIN || '';
 		address = storedAddress;
 		cart = JSON.parse(storedCart);
+		partnerCode = storedPartnerCode || '';
+		partnerDiscountPercentage = storedPartnerDiscount ? parseInt(storedPartnerDiscount) : 0;
 
 		// Mark data as loaded
 		isDataLoaded = true;
@@ -53,13 +57,15 @@
 
 	// Calculate totals using runes
 	let subtotal = $state(0);
+	let partnerDiscount = $state(0);
 	let total = $state(0);
 	let deliveryCharge = 500;  // Flat delivery charge of ₹500
 
 	// Update calculations when cart changes
 	$effect(() => {
 		subtotal = cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0);
-		total = subtotal + deliveryCharge;  // Add delivery charge to the total
+		partnerDiscount = partnerDiscountPercentage > 0 ? (subtotal * partnerDiscountPercentage / 100) : 0;
+		total = subtotal - partnerDiscount + deliveryCharge;
 	});
 </script>
 
@@ -98,6 +104,9 @@
 						{/if} 
 						{#if gstin !== "No GSTIN provided"}
 							<p>GSTIN: {gstin}</p>
+						{/if}
+						{#if partnerCode}
+							<p class="mt-2 text-primary">Partner Code: {partnerCode}</p>
 						{/if}
 					</div>
 					<div class="text-right">
@@ -149,6 +158,12 @@
 							<span>Subtotal:</span>
 							<span>₹{subtotal.toLocaleString()}</span>
 						</div>
+						{#if partnerDiscountPercentage > 0}
+							<div class="mb-2 flex justify-between text-primary">
+								<span>Partner Discount ({partnerDiscountPercentage}%):</span>
+								<span>-₹{partnerDiscount.toLocaleString()}</span>
+							</div>
+						{/if}
 						<div class="mb-2 flex justify-between">
 							<span>Delivery Charges:</span>
 							<span>₹{deliveryCharge.toLocaleString()}</span>

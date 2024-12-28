@@ -104,8 +104,10 @@
 			name: data.user.name,
 			phone: data.user.phone,
 			email: data.user.email || '',
-
-			address: data.user.address
+			gstin: '',
+			address: data.user.address,
+			pincode: '',
+			partner_code: ''
 		};
 	}
 	const openModal = () => {
@@ -128,21 +130,47 @@
 			vibrate();
 		}
 	}
-
 	async function handleDownloadQuote(event: { preventDefault: () => void }) {
-		event.preventDefault();
+    event.preventDefault();
 
-		localStorage.setItem('customer_name', customer.name);
-		localStorage.setItem('partner_code', customer.partner_code);
+    localStorage.setItem('customer_name', customer.name);
+    localStorage.setItem('partner_code', customer.partner_code);
 
-		localStorage.setItem('customer_phone', customer.phone);
-		localStorage.setItem('customer_email', customer.email);
-		localStorage.setItem('customer_address', customer.address);
-		localStorage.setItem('gstin', customer.gstin);
-		localStorage.setItem('pincode', customer.pincode);
+    localStorage.setItem('customer_phone', customer.phone);
+    localStorage.setItem('customer_email', customer.email);
+    localStorage.setItem('customer_address', customer.address);
+    localStorage.setItem('gstin', customer.gstin);
+    localStorage.setItem('pincode', customer.pincode);
 
-		goto('/quote');
-	}
+    if (customer.partner_code !== '') {
+        try {
+            const response = await fetch(`/api/partners/${customer.partner_code}`);
+            
+            if (response.status === 200) {
+                const partner = await response.json();
+                if (partner) {
+                    localStorage.setItem('partner_overall_discount_percentage', parseFloat(partner.overall_discount));
+                }
+            } else if (response.status === 404) {
+                // Handle the 404 error - display an error message or do something else
+                alert('Partner not found. Please check the partner code.');
+                return; // Exit the function if the partner is not found
+            } else {
+                // Handle other errors (500, 400, etc.)
+                alert('An error occurred while fetching partner details. Please try again later.');
+                return;
+            }
+        } catch (error) {
+            // Handle network errors or unexpected issues
+            alert('An error occurred while fetching partner details. Please try again later.');
+            return;
+        }
+    }
+
+    // Proceed with the download if everything is okay
+    goto('/quote');
+}
+
 	// onMount(() => {
 	// 	openModal();
 	// });
@@ -269,18 +297,7 @@
 						required
 					/>
 				</label>
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Partner Code
-					<input
-						type="tel"
-						class="grow"
-						name="partner_code"
-						placeholder="Optional"
-						minlength="10"
-						maxlength="10"
-						bind:value={customer.partner_code}
-					/>
-				</label>
+
 
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Phone
@@ -341,6 +358,19 @@
 						aria-label="pincode"
 						bind:value={customer.pincode}
 						required
+					/>
+				</label>
+
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Partner Code
+					<input
+						type="text"
+						class="grow"
+						name="partner_code"
+						placeholder="Optional"
+						minlength="3"
+						
+						bind:value={customer.partner_code}
 					/>
 				</label>
 
