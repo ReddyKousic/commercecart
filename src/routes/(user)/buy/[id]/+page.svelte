@@ -10,7 +10,6 @@
 
 	interface CartItem {
 		variationId: number;
-
 		productId: number;
 		thickness: string;
 		color: string;
@@ -21,31 +20,41 @@
 		description: string;
 	}
 
-	let quantities: Record<string, Record<string, number>> = $state({});
+	let quantities: Record<number, Record<string, number>> = $state({});
 	let cart: CartItem[] = $state([]);
 
-	// Initialize quantities
-	data.variations.forEach((variation) => {
-		quantities[variation.thickness] = {};
-		colors.forEach((color) => {
-			quantities[variation.thickness][color] = 0;
-		});
-	});
-
-	onMount(() => {
-		// Load cart from localStorage on component mount
+	// Load cart first, then initialize quantities
+	function initializeQuantities() {
+		// First, load the cart from localStorage
 		const savedCart = localStorage.getItem('cart');
 		if (savedCart) {
 			cart = JSON.parse(savedCart);
-			// Update quantities based on cart
-			cart.forEach((item) => {
-				quantities[item.thickness][item.color] = item.quantity;
-			});
 		}
+
+		// Initialize quantities for all variations
+		data.variations.forEach((variation) => {
+			quantities[variation.id] = {};
+			colors.forEach((color) => {
+				// Set initial quantity to 0
+				quantities[variation.id][color] = 0;
+				
+				// If this variation and color exists in cart, update the quantity
+				const cartItem = cart.find(
+					item => item.variationId === variation.id && item.color === color
+				);
+				if (cartItem) {
+					quantities[variation.id][color] = cartItem.quantity;
+				}
+			});
+		});
+	}
+
+	onMount(() => {
+		initializeQuantities();
 	});
 
-	function updateCart(thickness: string, color: string, newQuantity: number) {
-		const variation = data.variations.find((v) => v.thickness === thickness);
+	function updateCart(variationId: number, thickness: string, color: string, newQuantity: number) {
+		const variation = data.variations.find((v) => v.id === variationId);
 		if (!variation) return;
 
 		const price = variation.discount_percentage
@@ -53,25 +62,19 @@
 			: variation.price;
 
 		const cartItemIndex = cart.findIndex(
-			(item) =>
-				item.productId === data.product[0].id &&
-				item.thickness === thickness &&
-				item.color === color
+			(item) => item.variationId === variationId && item.color === color
 		);
 
 		if (newQuantity === 0 && cartItemIndex !== -1) {
-			// Remove item from cart
 			cart = cart.filter((_, index) => index !== cartItemIndex);
 		} else if (cartItemIndex !== -1) {
-			// Update existing item
 			cart[cartItemIndex].quantity = newQuantity;
-			cart = [...cart]; // Trigger reactivity
+			cart = [...cart];
 		} else if (newQuantity > 0) {
-			// Add new item
 			cart = [
 				...cart,
 				{
-					variationId: variation ? variation.id : 0,
+					variationId: variation.id,
 					productId: data.product[0].id,
 					name: data.product[0].name,
 					thickness,
@@ -84,8 +87,24 @@
 			];
 		}
 
-		// Save to localStorage
 		localStorage.setItem('cart', JSON.stringify(cart));
+	}
+
+	function increment(variationId: number, thickness: string, color: string) {
+		if (!quantities[variationId]) {
+			quantities[variationId] = {};
+		}
+		quantities[variationId][color] = (quantities[variationId][color] || 0) + 1;
+		updateCart(variationId, thickness, color, quantities[variationId][color]);
+		vibrate();
+	}
+
+	function decrement(variationId: number, thickness: string, color: string) {
+		if (quantities[variationId]?.[color] > 0) {
+			quantities[variationId][color]--;
+			updateCart(variationId, thickness, color, quantities[variationId][color]);
+			vibrate();
+		}
 	}
 
 	let modal: HTMLDialogElement;
@@ -117,63 +136,46 @@
 	const closeModal = () => {
 		modal.close();
 	};
-	function increment(thickness: string, color: string) {
-		quantities[thickness][color]++;
-		updateCart(thickness, color, quantities[thickness][color]);
-		vibrate();
-	}
 
-	function decrement(thickness: string, color: string) {
-		if (quantities[thickness][color] > 0) {
-			quantities[thickness][color]--;
-			updateCart(thickness, color, quantities[thickness][color]);
-			vibrate();
-		}
-	}
 	async function handleDownloadQuote(event: { preventDefault: () => void }) {
-    event.preventDefault();
+		event.preventDefault();
 
-    localStorage.setItem('customer_name', customer.name);
-    localStorage.setItem('partner_code', customer.partner_code);
+		localStorage.setItem('customer_name', customer.name);
+		localStorage.setItem('partner_code', customer.partner_code);
 
-    localStorage.setItem('customer_phone', customer.phone);
-    localStorage.setItem('customer_email', customer.email);
-    localStorage.setItem('customer_address', customer.address);
-    localStorage.setItem('gstin', customer.gstin);
-    localStorage.setItem('pincode', customer.pincode);
+		localStorage.setItem('customer_phone', customer.phone);
+		localStorage.setItem('customer_email', customer.email);
+		localStorage.setItem('customer_address', customer.address);
+		localStorage.setItem('gstin', customer.gstin);
+		localStorage.setItem('pincode', customer.pincode);
 
-    if (customer.partner_code !== '') {
-        try {
-            const response = await fetch(`/api/partners/${customer.partner_code}`);
-            
-            if (response.status === 200) {
-                const partner = await response.json();
-                if (partner) {
-                    localStorage.setItem('partner_overall_discount_percentage', parseFloat(partner.overall_discount));
-                }
-            } else if (response.status === 404) {
-                // Handle the 404 error - display an error message or do something else
-                alert('Partner not found. Please check the partner code.');
-                return; // Exit the function if the partner is not found
-            } else {
-                // Handle other errors (500, 400, etc.)
-                alert('An error occurred while fetching partner details. Please try again later.');
-                return;
-            }
-        } catch (error) {
-            // Handle network errors or unexpected issues
-            alert('An error occurred while fetching partner details. Please try again later.');
-            return;
-        }
-    }
+		if (customer.partner_code !== '') {
+			try {
+				const response = await fetch(`/api/partners/${customer.partner_code}`);
 
-    // Proceed with the download if everything is okay
-    goto('/quote');
-}
+				if (response.status === 200) {
+					const partner = await response.json();
+					if (partner) {
+						localStorage.setItem(
+							'partner_overall_discount_percentage',
+							parseFloat(partner.overall_discount)
+						);
+					}
+				} else if (response.status === 404) {
+					alert('Partner not found. Please check the partner code.');
+					return;
+				} else {
+					alert('An error occurred while fetching partner details. Please try again later.');
+					return;
+				}
+			} catch (error) {
+				alert('An error occurred while fetching partner details. Please try again later.');
+				return;
+			}
+		}
 
-	// onMount(() => {
-	// 	openModal();
-	// });
+		goto('/quote');
+	}
 </script>
 
 <PublicMenu currentPage={'buy'} {data} />
@@ -209,16 +211,16 @@
 						<div class="flex items-center space-x-2">
 							<button
 								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								on:click={() => decrement(variation.thickness, color)}
+								on:click={() => decrement(variation.id, variation.thickness, color)}
 							>
 								-
 							</button>
 							<span class="w-8 text-center">
-								{variation.thickness && color ? quantities[variation.thickness][color] : 0}
+								{quantities[variation.id]?.[color] || 0}
 							</span>
 							<button
 								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								on:click={() => increment(variation.thickness, color)}
+								on:click={() => increment(variation.id, variation.thickness, color)}
 							>
 								+
 							</button>
@@ -229,6 +231,7 @@
 		</div>
 	{/each}
 </div>
+
 <div class="fixed bottom-0 left-0 right-0 z-50 border-t bg-white p-4 shadow-lg">
 	<div class="mx-auto flex max-w-5xl items-center justify-between gap-2">
 		<div class="text-lg font-bold">
@@ -242,7 +245,7 @@
 		</button>
 	</div>
 </div>
-<!-- Cart Summary -->
+
 <div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-52 shadow">
 	<h2 class="mb-4 text-xl font-bold">Cart Summary</h2>
 	{#if cart.length === 0}
@@ -287,7 +290,6 @@
 			<form method="post" on:submit={handleDownloadQuote}>
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Name
-
 					<input
 						type="text"
 						class="grow"
@@ -297,7 +299,6 @@
 						required
 					/>
 				</label>
-
 
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Phone
@@ -369,7 +370,6 @@
 						name="partner_code"
 						placeholder="Optional"
 						minlength="3"
-						
 						bind:value={customer.partner_code}
 					/>
 				</label>
