@@ -12,7 +12,7 @@
     <!-- Form to create a new partner -->
     <form 
         method="post" 
-        class="card shadow-lg bg-base-200 p-6 mb-8 space-y-4"
+        class="card p-6 mb-8 space-y-4 border"
         on:submit={() => { error = null; success = null; }}>
         <h2 class="text-xl font-semibold">Create a New Partner</h2>
         <div class="form-control">
@@ -49,7 +49,7 @@
                 min="0" />
         </div>
 
-        <button type="submit" formaction="?/createPartner" class="btn btn-primary w-full">Create Partner</button>
+        <button type="submit" formaction="?/createPartner" class="btn w-full">Create Partner</button>
     </form>
 
     {#if error}
@@ -62,7 +62,7 @@
     <!-- List of partners -->
     <section class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {#each data.partners as partner}
-            <div class="card shadow-lg bg-base-200">
+            <div class="card  border">
                 <div class="card-body">
                     <h3 class="card-title">{partner.partner_name}</h3>
                     <p><strong>Phone:</strong> {partner.partner_phone || 'N/A'}</p>
@@ -76,5 +76,19 @@
 </main>
 
 <style>
-    /* Additional custom styles if needed */
+   
+   .btn {
+        background-color: #047857;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
 </style>

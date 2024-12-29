@@ -1,51 +1,143 @@
-<script>
-	import { page } from '$app/stores';
+<script lang="ts">
+    import { page } from '$app/stores';
+    import { 
+        Package, 
+        PlusCircle, 
+        Users, 
+        HandshakeIcon, 
+        Tags 
+    } from 'lucide-svelte';
+    
+    // Define admin navigation items with paths and Lucide icon components
+    const menuItems = [
+		{ 
+            path: '/manage/products', 
+            label: 'Products',
+            icon: Tags
+        },
+        { 
+            path: '/manage/orders', 
+            label: 'Orders',
+            icon: Package
+        },
+        { 
+            path: '/manage/products/add', 
+            label: 'New',
+            icon: PlusCircle
+        },
+        { 
+            path: '/manage/customers', 
+            label: 'Customers',
+            icon: Users
+        },
+        { 
+            path: '/manage/partners', 
+            label: 'Partners',
+            icon: HandshakeIcon
+        },
+    
+    ];
 
-	let currentPage = $state($page.url.pathname);
+    // Check if current path is active
+    const isActive = (path: string) => $page.url.pathname === path;
 
-	$effect(() => {
-		currentPage = $page.url.pathname;
-	});
-
-	// Menu items with their respective paths and labels
-	const menuItems = [
-		{ path: '/manage/orders', label: 'Orders' },
-		{ path: '/manage/products/add', label: 'New' },
-		{ path: '/manage/customers', label: 'Customers' },
-		{ path: '/manage/products', label: 'Products' }
-	];
-
-	// Function to determine which items to show
-	function getVisibleMenuItems() {
-		// Filter out the current page's menu item
-		return menuItems.filter(item => item.path !== currentPage);
-	}
+    // Show all items except login page
+    $: isLoginPage = $page.url.pathname === '/manage/login';
 </script>
 
-<div class="menu flex flex-row items-center justify-between gap-2">
-	{#if currentPage === '/manage/login'}
-		<p class="text-gray-500 text-center w-full">Please log in to manage your store</p>
-	{:else}
-		{#each getVisibleMenuItems() as item}
-			<a
-				href={item.path}
-				class="menu-item btn flex-1 rounded-sm p-2 text-center"
-			>
-				{item.label}
-			</a>
-		{/each}
-	{/if}
-</div>
+<nav class="mb-4">
+    {#if isLoginPage}
+        <p class="w-full text-center text-gray-800">Please log in to manage your store</p>
+    {:else}
+        <div class="menu flex flex-row items-center justify-between gap-2">
+            {#each menuItems as { path, label, icon: Icon }}
+                <a
+                    href={path}
+                    class="menu-item btn flex-1 transform transition-all duration-200"
+                    class:active={isActive(path)}
+                    aria-current={isActive(path) ? 'page' : undefined}
+                >
+                    <span class="icon-wrapper">
+                        <svelte:component this={Icon} size={18} strokeWidth={2} />
+                    </span>
+                    <!-- <span class="label">{label}</span> -->
+                </a>
+            {/each}
+        </div>
+    {/if}
+</nav>
 
 <hr class="mt-2" />
 
 <style>
-	.btn {
-		background-color: #047857;
-		color: white;
-		font-family: 'Poppins', sans-serif;
-		font-size: 16px;
-		border-radius: 20px;
-	}
+    .menu {
+        position: relative;
+        padding: 0.5rem;
+    }
 
+    .btn {
+        background-color: #047857;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        border-radius: 20px;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn:hover {
+        background-color: #065f46;
+        transform: translateY(-1px);
+    }
+
+    .btn.active {
+        background-color: #064e3b;
+        font-weight: 500;
+    }
+
+    .btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40%;
+        height: 2px;
+        background-color: white;
+        border-radius: 2px;
+    }
+
+    .icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.9;
+    }
+
+    .label {
+        font-size: 0.95em;
+        letter-spacing: 0.02em;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+        .btn {
+            padding: 0.5rem;
+            font-size: 14px;
+        }
+
+        .icon-wrapper {
+            margin-right: -0.25rem;
+        }
+
+        .label {
+            font-size: 0.85em;
+        }
+    }
 </style>

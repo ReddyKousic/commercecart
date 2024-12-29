@@ -73,3 +73,11 @@ export const partners = mysqlTable('partners', {
 	overall_discount: decimal('overall_discount', { precision: 5, scale: 2 }).default('0'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow(),
 })
+
+export const deliverable_pincodes = mysqlTable('deliverable_pincodes', {
+	id: int('id').primaryKey().autoincrement(),
+	pincode: int('pincode').notNull(),
+	
+	created_at: timestamp('uploaded_on').notNull().defaultNow(),
+	
+})
