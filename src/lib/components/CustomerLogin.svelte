@@ -40,7 +40,7 @@
 		</div>
 	</form>
 
-	<CustomerAuthentication />
+	<!-- <CustomerAuthentication /> -->
 </section>
 
 <style>
