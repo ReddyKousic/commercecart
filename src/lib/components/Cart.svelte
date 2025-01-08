@@ -50,7 +50,9 @@
 					<div class="flex-grow">
 						<p class="font-semibold">{item.name}</p>
 						<p class="text-gray-600">
-							{item.color}, {item.length} meters, {item.type}, {item.thickness}
+							<!-- {item.color}, {item.length} meters, {item.type}, {item.thickness} -->
+							{item.color}, {item.thickness}
+
 						</p>
 						<div class="mt-1 text-gray-600">
 							<span class="line-through text-sm text-gray-400">₹{item.price}</span>

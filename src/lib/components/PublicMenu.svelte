@@ -1,67 +1,107 @@
-<script>
-	import CartIcon from '$lib/assets/CartIcon.svelte';
+<script lang="ts">
+    import { page } from '$app/stores';
+    import CartIcon from '$lib/assets/CartIcon.svelte';
+    let { data = { user: {} } } = $props();
 
-	let { data = { user: {} }, currentPage = 'home' } = $props();
+    // Define navigation items with their paths and labels
+    const navItems = [
+        { path: '/', label: 'Home' },
+        { path: '/cart', label: 'Cart' },
+        { path: '/account/orders', label: 'Orders', requiresAuth: true },
+        { path: '/login', label: 'Login', hideIfAuth: true },
+        { path: '/account', label: 'Account', requiresAuth: true },
+
+    ];
+
+    // Helper function to check if a path is active
+    const isActive = (path: string) => {
+        return $page.url.pathname === path;
+    };
+
+    // Filter navigation items based on auth status
+    $effect(() => {
+        return navItems.filter(item => {
+            if (item.requiresAuth && !data.user) return false;
+            if (item.hideIfAuth && data.user) return false;
+            return true;
+        });
+    });
 </script>
 
 <hr class="mb-2 mt-2" />
-
-<div class="menu flex flex-row items-center justify-between gap-2">
-	<!-- Dynamic Buttons -->
-	{#if currentPage === 'cart' || currentPage === 'buy'}
-		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>
-		{#if data.user}
-			<a href="/account" class="menu-item btn flex-1 rounded-sm p-2 text-center">Account</a>
-			<a href="/account/orders" class="menu-item btn flex-1 rounded-sm p-2 text-center">Orders</a>
-		{:else}
-			<a href="/login" class="menu-item btn flex-1 rounded-sm p-2 text-center">Login</a>
-		{/if}
-	{:else if currentPage === 'account'}
-		<a href="/cart" class="menu-item btn flex-1 rounded-sm p-2 text-center">Cart</a>
-		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>
-		{#if data.user}
-			<a href="/account/orders" class="menu-item btn flex-1 rounded-sm p-2 text-center">Orders</a>
-		{:else}
-			<a href="/login" class="menu-item btn flex-1 rounded-sm p-2 text-center">Login</a>
-		{/if}
-	{:else if currentPage === 'orders'}
-		<a href="/cart" class="menu-item btn flex-1 rounded-sm p-2 text-center">Cart</a>
-		<a href="/" class="menu-item btn flex-1 rounded-sm p-2 text-center">Home</a>
-		{#if data.user}
-			<a href="/account" class="menu-item btn flex-1 rounded-sm p-2 text-center">Account</a>
-		{:else}
-			<a href="/login" class="menu-item btn flex-1 rounded-sm p-2 text-center">Login</a>
-		{/if}
-	{:else if currentPage === 'home'}
-		<a href="/cart" class="menu-item btn flex-1 rounded-sm p-2 text-center">Cart & Quote</a>
-		{#if data.user}
-			<a href="/account" class="menu-item btn flex-1 rounded-sm p-2 text-center">Account</a>
-			<a href="/account/orders" class="menu-item btn flex-1 rounded-sm p-2 text-center">Orders</a>
-		{:else}
-			<a href="/login" class="menu-item btn flex-1 rounded-sm p-2 text-center">Login</a>
-		{/if}
-	{/if}
-</div>
+<nav class="menu flex flex-row items-center justify-between gap-2">
+    {#each navItems as { path, label, requiresAuth, hideIfAuth }}
+        {#if (!requiresAuth || data.user) && (!hideIfAuth || !data.user)}
+            <a
+                href={path}
+                class="menu-item btn flex-1 rounded-sm p-2 text-center transition-all duration-300"
+                class:active={isActive(path)}
+                aria-current={isActive(path) ? 'page' : undefined}
+            >
+                {label}
+            </a>
+        {/if}
+    {/each}
+</nav>
 
 <!-- User Message -->
 {#if data.user}
-	<p class="mt-2 text-center">Welcome, {data.user.name}</p>
+    <p class="mt-2 text-center text-sm text-gray-700">Welcome, {data.user.name}</p>
 {:else}
-	<p class="mt-2 text-center">Please login to view your account</p>
+    <p class="mt-2 text-center text-sm text-gray-600">Please login to view your account</p>
 {/if}
-
 <hr class="mt-2" />
 
 <style>
-	.btn {
-		background-color: #ed1c24;
-		color: white;
-		font-family: 'Poppins', sans-serif;
-		font-size: 16px;
-		border-radius: 20px;
-		text-decoration: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+    .btn {
+        background-color: #ed1c24;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        border-radius: 20px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn:hover {
+        /* transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(237, 28, 36, 0.2); */
+    }
+
+    .btn.active {
+        /* background-color: #c41017;
+        box-shadow: 0 0 15px rgba(237, 28, 36, 0.4); */
+        font-weight: 500;
+    }
+
+    .btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40%;
+        height: 2px;
+        background-color: white;
+        border-radius: 2px;
+    }
+
+    /* Smooth transitions */
+    .btn {
+        /* transition: all 0.2s ease-in-out; */
+    }
+
+    /* @keyframes glow {
+        0% { box-shadow: 0 0 5px rgba(237, 28, 36, 0.4); }
+        50% { box-shadow: 0 0 15px rgba(237, 28, 36, 0.6); }
+        100% { box-shadow: 0 0 5px rgba(237, 28, 36, 0.4); }
+    } */
+
+    .btn.active {
+        animation: glow 2s infinite;
+    }
 </style>

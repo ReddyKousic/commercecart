@@ -20,6 +20,9 @@ importers:
       jspdf:
         specifier: ^2.5.2
         version: 2.5.2
+      lucide-svelte:
+        specifier: ^0.469.0
+        version: 0.469.0(svelte@5.3.1)
       mysql2:
         specifier: ^3.11.5
         version: 3.11.5
@@ -1840,6 +1843,11 @@ packages:
   lru.min@1.1.1:
     resolution: {integrity: sha512-FbAj6lXil6t8z4z3j0E5mfRlPzxkySotzUHwRXjlpRh10vc6AI6WN62ehZj82VG7M20rqogJ0GLwar2Xa05a8Q==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
+
+  lucide-svelte@0.469.0:
+    resolution: {integrity: sha512-PMIJ8jrFqVUsXJz4d1yfAQplaGhNOahwwkzbunha8DhpiD73xqX24n8dE1dPpUk3vcrdWVsHc1y/liHHotOnGQ==}
+    peerDependencies:
+      svelte: ^3 || ^4 || ^5.0.0-next.42
 
   magic-string@0.30.14:
     resolution: {integrity: sha512-5c99P1WKTed11ZC0HMJOj6CDIue6F8ySu+bJL+85q1zBEIY8IklrJ1eiKC2NDRh3Ct3FcvmJPyQHb9erXMTJNw==}
@@ -4044,6 +4052,10 @@ snapshots:
   lru-cache@7.18.3: {}
 
   lru.min@1.1.1: {}
+
+  lucide-svelte@0.469.0(svelte@5.3.1):
+    dependencies:
+      svelte: 5.3.1
 
   magic-string@0.30.14:
     dependencies:

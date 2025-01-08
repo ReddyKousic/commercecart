@@ -20,6 +20,8 @@ declare global {
 				email: string;
 	
 				address: string;
+
+				gstin: string;
 	
 			};
 	
@@ -30,6 +32,17 @@ declare global {
 				phone: string;
 	
 				name: string;
+	
+			};
+			manager?: {
+	
+				id: Number;
+	
+				phone: string;
+	
+				name: string;
+
+				email: string;
 	
 			};
 	

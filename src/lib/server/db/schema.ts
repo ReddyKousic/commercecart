@@ -11,7 +11,7 @@ export const products = mysqlTable('products', {
 export const product_variations = mysqlTable('product_variations', {
 	id: int('id').primaryKey().autoincrement(),
 	product_id: int('product_id').notNull().references(() => products.id),
-	color: varchar('color', { length: 255 }),
+	// color: varchar('color', { length: 255 }),
 	// length: int('length'),
 	// type: varchar('type', { length: 255 }),
 	thickness: varchar('thickness', { length: 255 }), // Column for wire thickness
@@ -28,6 +28,7 @@ export const customers = mysqlTable('customers', {
 	email: varchar('email', { length: 255 }),
 	phone: varchar('phone', { length: 255 }).notNull(),
 	address: text('address'),
+	gstin: text('gstin'),
 	password: varchar('password', { length: 255 }).notNull(),
 	sessionId: varchar('sessionId', { length: 255 }),
 	sessionEOL: datetime('sessionEOL'),
@@ -44,6 +45,7 @@ export const orders = mysqlTable('orders', {
 	co_name: varchar('co_name', { length: 255 }).notNull(),
 	co_address: text('co_address').notNull(),
 	co_email: varchar('co_email', { length: 255 }),
+	co_gstin:  text('co_gstin'),
 	delivery_notes: text('delivery_notes'),
 	delivery_date: datetime('delivery_date'),
 	
@@ -62,3 +64,20 @@ export const store_managers = mysqlTable('store_managers', {
 	sessionEOL: datetime('sessionEOL'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow(),
 });
+
+export const partners = mysqlTable('partners', {
+	id: int('id').primaryKey().autoincrement(),
+	partner_name: varchar('partner_name', { length: 255 }).notNull(),
+	partner_phone: varchar('partner_phone', { length: 255 }),
+	partner_code: varchar('partner_code', { length: 255 }).notNull(),
+	overall_discount: decimal('overall_discount', { precision: 5, scale: 2 }).default('0'),
+	created_at: timestamp('uploaded_on').notNull().defaultNow(),
+})
+
+export const deliverable_pincodes = mysqlTable('deliverable_pincodes', {
+	id: int('id').primaryKey().autoincrement(),
+	pincode: int('pincode').notNull(),
+	
+	created_at: timestamp('uploaded_on').notNull().defaultNow(),
+	
+})

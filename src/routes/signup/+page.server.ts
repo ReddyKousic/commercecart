@@ -4,6 +4,7 @@ import { customers } from "$lib/server/db/schema";
 import { eq } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
 import { randomBytes } from 'crypto';
+import { env } from '$env/dynamic/private';
 
 function isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,6 +40,8 @@ export const actions = {
         const confirmPassword = data.get('confirmPassword') as string || '';
         const email = data.get('email') as string || '';
         const name = data.get('name') as string || '';
+        const gstin = data.get('gstin') as string || '';
+
         const address = data.get('address') as string || '';
 
         // Collect missing fields
@@ -93,6 +96,7 @@ export const actions = {
                 email: email || null,
                 phone,
                 address,
+                gstin,
                 password, // Remember to hash the password before storing in production!
                 sessionId,
                 sessionEOL
@@ -104,7 +108,7 @@ export const actions = {
             cookies.set('sessionId', sessionId, {
                 path: '/',
                 httpOnly: true,
-                secure: false,
+                secure: env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 60 * 60 * 24 * 15
             });

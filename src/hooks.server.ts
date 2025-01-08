@@ -6,13 +6,13 @@ import { eq } from 'drizzle-orm';
 
 export const handle: Handle = async ({ event, resolve }) => {
 
-    const userAgent = event.request.headers.get('user-agent') || '';
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent);
+    // const userAgent = event.request.headers.get('user-agent') || '';
+    // const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent);
 
-    // Redirect non-mobile users to /not-supported
-    if (!isMobile && !event.url.pathname.startsWith('/not-supported')) {
-        throw redirect(303, '/not-supported');
-    }
+    // // Redirect non-mobile users to /not-supported
+    // if (!isMobile && !event.url.pathname.startsWith('/not-supported')) {
+    //     throw redirect(303, '/not-supported');
+    // }
     
     const customerSessionId = event.cookies.get('sessionId');
     const managerSessionId = event.cookies.get('storeManagerSessionId');
@@ -29,7 +29,9 @@ export const handle: Handle = async ({ event, resolve }) => {
                 phone: userRecord[0].phone,
                 name: userRecord[0].name,
                 email: userRecord[0].email || "No Email provided",
-                address: userRecord[0].address || "No Address provided"
+                address: userRecord[0].address || "No Address provided",
+                gstin: userRecord[0].gstin || "No GSTIN provided"
+
             };
             
             // Redirect authenticated customers away from login

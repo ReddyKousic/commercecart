@@ -9,7 +9,7 @@
 	const thicknesses = ["1 Sq.mm", "1.5 Sq.mm", "2.5 Sq.mm", "4 Sq.mm", "6 Sq.mm" ];
 
 	let variations: {
-		color: string;
+		// color: string;
 		// length: string;
 		// type: string;
 		thickness: string;
@@ -26,7 +26,9 @@
 		const seen = new Set();
 		variations.forEach((v, i) => {
 			// const key = `${v.color}-${v.length}-${v.type}-${v.thickness}`;
-			const key = `${v.color}-${v.thickness}`;
+			// const key = `${v.color}-${v.thickness}`;
+			const key = `${v.thickness}`;
+
 
 			if (seen.has(key)) {
 				variations[i].error = 'Duplicate combination';
@@ -41,7 +43,7 @@
 		variations = [
 			...variations,
 			{
-				color: '',
+				// color: '',
 				// length: '',
 				// type: '',
 				thickness: '',
@@ -61,7 +63,9 @@
 		validateUniqueCombinations();
 		const hasErrors = variations.some(
 			// (v) => v.error || !v.color || !v.length || !v.type || !v.price
-			(v) => v.error || !v.color || !v.price
+			// (v) => v.error || !v.color || !v.price
+			(v) => v.error || !v.price
+
 
 		);
 
@@ -135,7 +139,7 @@
 				</div>
 
 				<div class="grid grid-cols-2 gap-4">
-					<div>
+					<!-- <div>
 						<label>Color</label>
 						<select bind:value={variation.color} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Color</option>
@@ -143,7 +147,7 @@
 								<option value={color}>{color}</option>
 							{/each}
 						</select>
-					</div>
+					</div> -->
 
 					<!-- <div>
 						<label>Length (Meters)</label>
