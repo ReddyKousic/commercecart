@@ -2,7 +2,7 @@
 	const currentYear = new Date().getFullYear();
 </script>
 
-<footer class="footer bg-base-200 py-8 text-base-content px-4">
+<footer class="footer bg-base-200 px-4 py-8 text-base-content">
 	<div
 		class="container mx-auto flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0"
 	>
@@ -10,9 +10,14 @@
 		<div
 			class="footer-links flex flex-col space-y-2 text-center md:flex-row md:space-x-6 md:space-y-0"
 		>
+			<a href="/info/contact" class="link-hover link text-sm">Contact Us</a>
+
 			<a href="/info/about" class="link-hover link text-sm">About Us</a>
+
 			<a href="/info/privacy" class="link-hover link text-sm">Privacy Policy</a>
-			<a href="/info/cancellation-and-return" class="link-hover link text-sm">Cancellation and Return Policy</a>
+			<a href="/info/cancellation-and-return" class="link-hover link text-sm"
+				>Cancellation and Return Policy</a
+			>
 			<a href="/info/shipping" class="link-hover link text-sm">Shipping Policy</a>
 			<a href="/info/tnc" class="link-hover link text-sm">Terms and Conditions</a>
 		</div>
