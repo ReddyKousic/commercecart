@@ -5,9 +5,13 @@
 
 	import type { PageData } from './$types';
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 	export let data: PageData;
 </script>
 <StoreDetails logo={true} />
 <PublicMenu {data} currentPage={"home"}/>
 
 <PublicProductsList {data} />
+
+<Footer />
+

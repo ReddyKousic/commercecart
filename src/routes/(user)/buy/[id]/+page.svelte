@@ -246,7 +246,7 @@
 	</div>
 </div>
 
-<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-52 shadow">
+<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-96  shadow">
 	<h2 class="mb-4 text-xl font-bold">Cart Summary</h2>
 	{#if cart.length === 0}
 		<p class="text-gray-500">Your cart is empty</p>
