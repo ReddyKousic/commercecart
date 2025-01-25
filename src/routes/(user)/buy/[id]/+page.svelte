@@ -246,7 +246,7 @@
 	</div>
 </div>
 
-<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-96  shadow">
+<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-60 ">
 	<h2 class="mb-4 text-xl font-bold">Cart Summary</h2>
 	{#if cart.length === 0}
 		<p class="text-gray-500">Your cart is empty</p>
@@ -261,7 +261,9 @@
 						</p>
 					</div>
 					<div class="text-right">
-						<p class="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+						<p class="text-gray-500 line-through">₹{(item.price * item.quantity).toFixed(2)}</p>
+						<p class="font-bold text-red-600">₹{(item.discountedPrice * item.quantity).toFixed(2)}</p>
+
 						<p class="text-sm text-gray-600">Qty: {item.quantity}</p>
 					</div>
 				</div>
