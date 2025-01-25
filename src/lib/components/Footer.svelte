@@ -2,31 +2,67 @@
 	const currentYear = new Date().getFullYear();
 </script>
 
-<footer class="footer bg-base-200 px-4 py-8 text-base-content">
-	<div
-		class="container mx-auto flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0"
-	>
-		<!-- Links Section -->
-		<div
-			class="footer-links flex flex-col space-y-2 text-center md:flex-row md:space-x-6 md:space-y-0"
-		>
-			<a href="/info/contact" class="link-hover link text-sm">Contact Us</a>
+<footer class="bg-gray-100 px-4 py-10 text-gray-800">
+	<div class="container mx-auto max-w-6xl">
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+			<!-- Links Section -->
+			<div class="space-y-4">
+				<h3 class="mb-4 text-lg font-bold text-gray-900">Quick Links</h3>
+				<div class="grid grid-cols-2 gap-4">
+					<a href="/" class="text-gray-600 transition-colors hover:text-blue-600">Home</a>
+					<a href="/info/contact" class="text-gray-600 transition-colors hover:text-blue-600"
+						>Contact Us</a
+					>
+					<a href="/info/about" class="text-gray-600 transition-colors hover:text-blue-600"
+						>About Us</a
+					>
+					<a href="/info/privacy" class="text-gray-600 transition-colors hover:text-blue-600"
+						>Privacy Policy</a
+					>
+					<a
+						href="/info/cancellation-and-return"
+						class="text-gray-600 transition-colors hover:text-blue-600">Cancellation & Return</a
+					>
+					<a href="/info/shipping" class="text-gray-600 transition-colors hover:text-blue-600"
+						>Shipping Policy</a
+					>
+					<a href="/info/tnc" class="text-gray-600 transition-colors hover:text-blue-600"
+						>Terms & Conditions</a
+					>
+				</div>
+			</div>
 
-			<a href="/info/about" class="link-hover link text-sm">About Us</a>
-
-			<a href="/info/privacy" class="link-hover link text-sm">Privacy Policy</a>
-			<a href="/info/cancellation-and-return" class="link-hover link text-sm"
-				>Cancellation and Return Policy</a
-			>
-			<a href="/info/shipping" class="link-hover link text-sm">Shipping Policy</a>
-			<a href="/info/tnc" class="link-hover link text-sm">Terms and Conditions</a>
-		</div>
-
-		<!-- Credit Section -->
-		<div class="credit text-center text-sm text-gray-500">
-			© {currentYear} <span class="font-semibold">WireGuy Electricals Pvt Ltd.</span> <br />
-			Developed and Powered by
-			<a href="https://koastec.com" class="font-semibold hover:underline">Koastec</a>.
+			<!-- Credit Section -->
+			<div class="space-y-3 text-center md:text-right">
+				<div class="gg text-2xl font-bold text-gray-900">WireGuy Electricals Pvt Ltd.</div>
+				<p class="text-gray-600">
+					© {currentYear} All Rights Reserved
+				</p>
+				<div class="text-sm text-gray-500">
+					Developed and Powered by
+					<a
+						href="https://koastec.com"
+						class="playwrite-us-modern font-semibold hover:underline"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Koastec&#8482;
+					</a>
+				</div>
+			</div>
 		</div>
 	</div>
 </footer>
+
+<style>
+	.gg {
+		font-family: 'Gowun Batang', serif;
+	}
+
+	.playwrite-us-modern {
+		font-family: 'Playwrite US Modern', serif;
+		font-optical-sizing: auto;
+
+		font-style: normal;
+	}
+</style>
