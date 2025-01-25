@@ -4,7 +4,7 @@
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
-
+	import { ArrowBigRight } from 'lucide-svelte';
 	let { data }: { data: PageData } = $props();
 	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
 
@@ -377,11 +377,12 @@
 				<input type="text" class="grow" name="address" bind:value={cart} hidden />
 
 				<div class="flex items-center justify-between">
-					<a href="/cart">
+					<!-- <a href="/cart">
 						<button class="sec btn" type="button">Checkout</button>
-					</a>
+					</a> -->
+					<div></div>
 
-					<button class="btn bg-[#ed1c24] text-white" type="submit">Download Quote</button>
+					<button class="btn bg-[#ed1c24] text-white" type="submit">Next <ArrowBigRight /></button>
 				</div>
 			</form>
 		{/if}

@@ -1,20 +1,28 @@
 <script>
 	import { vibrate } from '$lib';
+	import { Search } from 'lucide-svelte';
 
 	let { data = { products: [], user: {} } } = $props();
 
-	// State for popup
+	// State for search and popup
+	let searchTerm = $state('');
 	let showPopup = $state(false);
 	let popupMessage = $state('');
 
-	// Sort products: inactive ones go to the bottom
-	let sortedProducts = data.products.sort(
-		(/** @type {{ selling_status: string; }} */ a, /** @type {{ selling_status: string; }} */ b) =>
-			a.selling_status === 'inactive' && b.selling_status !== 'inactive'
-				? 1
-				: a.selling_status !== 'inactive' && b.selling_status === 'inactive'
-					? -1
-					: 0
+	// Computed property for filtered and sorted products
+	let filteredProducts = $derived(
+		data.products
+			.filter(product => 
+				product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+			)
+			.sort((a, b) =>
+				a.selling_status === 'inactive' && b.selling_status !== 'inactive'
+					? 1
+					: a.selling_status !== 'inactive' && b.selling_status === 'inactive'
+						? -1
+						: 0
+			)
 	);
 
 	function handleInactiveClick() {
@@ -28,21 +36,25 @@
 		popupMessage = '';
 	}
 </script>
-<!-- 
-{#if data.user}
-	<div class="bg-gray-100 py-4 text-center">
-		<div class="mx-auto max-w-7xl px-4">
-			<h1 class="text-2xl font-semibold">Welcome, {data.user.name}</h1>
+
+<div class="mx-auto max-w-7xl px-4 py-4">
+	<div class="mb-4 relative">
+		<input 
+			type="text" 
+			placeholder="Search products..." 
+			bind:value={searchTerm}
+			class="w-full rounded-md border p-2 pl-10"
+		/>
+		<div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+			<Search size={20} />
 		</div>
 	</div>
-{/if} -->
 
-<div class="mx-auto max-w-7xl px-4 py-8">
-	{#if sortedProducts?.length === 0}
+	{#if filteredProducts.length === 0}
 		<p class="text-center text-gray-500">No products found</p>
 	{:else}
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-			{#each sortedProducts as product}
+			{#each filteredProducts as product}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<div
