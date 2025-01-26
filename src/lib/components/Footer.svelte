@@ -13,24 +13,24 @@
 			<div class="mb-4 space-y-4">
 				<h3 class="mb-4 text-lg font-bold text-gray-900">Quick Links</h3>
 				<div class="grid grid-cols-2 gap-4">
-					<a href="/" class="text-gray-600 transition-colors hover:text-blue-600">Home</a>
-					<a href="/info/contact" class="text-gray-600 transition-colors hover:text-blue-600"
+					<a href="/" class="text-gray-600 transition-colors hover:text-red-600">Home</a>
+					<a href="/info/contact" class="text-gray-600 transition-colors hover:text-red-600"
 						>Contact Us</a
 					>
-					<a href="/info/about" class="text-gray-600 transition-colors hover:text-blue-600"
+					<a href="/info/about" class="text-gray-600 transition-colors hover:text-red-600"
 						>About Us</a
 					>
-					<a href="/info/privacy" class="text-gray-600 transition-colors hover:text-blue-600"
+					<a href="/info/privacy" class="text-gray-600 transition-colors hover:text-red-600"
 						>Privacy Policy</a
 					>
 					<a
 						href="/info/cancellation-and-return"
-						class="text-gray-600 transition-colors hover:text-blue-600">Cancellation & Return</a
+						class="text-gray-600 transition-colors hover:text-red-600">Cancellation & Return</a
 					>
-					<a href="/info/shipping" class="text-gray-600 transition-colors hover:text-blue-600"
+					<a href="/info/shipping" class="text-gray-600 transition-colors hover:text-red-600"
 						>Shipping Policy</a
 					>
-					<a href="/info/tnc" class="text-gray-600 transition-colors hover:text-blue-600"
+					<a href="/info/tnc" class="text-gray-600 transition-colors hover:text-red-600"
 						>Terms & Conditions</a
 					>
 				</div>

@@ -130,7 +130,9 @@
 		};
 	}
 	const openModal = () => {
-		modal.showModal();
+		// modal.showModal();
+		goto('/cart');
+
 	};
 
 	const closeModal = () => {
@@ -149,32 +151,32 @@
 		localStorage.setItem('gstin', customer.gstin);
 		localStorage.setItem('pincode', customer.pincode);
 
-		if (customer.partner_code !== '') {
-			try {
-				const response = await fetch(`/api/partners/${customer.partner_code}`);
+		// if (customer.partner_code !== '') {
+		// 	try {
+		// 		const response = await fetch(`/api/partners/${customer.partner_code}`);
 
-				if (response.status === 200) {
-					const partner = await response.json();
-					if (partner) {
-						localStorage.setItem(
-							'partner_overall_discount_percentage',
-							parseFloat(partner.overall_discount)
-						);
-					}
-				} else if (response.status === 404) {
-					alert('Partner not found. Please check the partner code.');
-					return;
-				} else {
-					alert('An error occurred while fetching partner details. Please try again later.');
-					return;
-				}
-			} catch (error) {
-				alert('An error occurred while fetching partner details. Please try again later.');
-				return;
-			}
-		}
+		// 		if (response.status === 200) {
+		// 			const partner = await response.json();
+		// 			if (partner) {
+		// 				localStorage.setItem(
+		// 					'partner_overall_discount_percentage',
+		// 					parseFloat(partner.overall_discount)
+		// 				);
+		// 			}
+		// 		} else if (response.status === 404) {
+		// 			alert('Partner not found. Please check the partner code.');
+		// 			return;
+		// 		} else {
+		// 			alert('An error occurred while fetching partner details. Please try again later.');
+		// 			return;
+		// 		}
+		// 	} catch (error) {
+		// 		alert('An error occurred while fetching partner details. Please try again later.');
+		// 		return;
+		// 	}
+		// }
 
-		goto('/quote');
+		// goto('/cart');
 	}
 </script>
 

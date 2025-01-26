@@ -279,7 +279,7 @@
 
 				<div class="flex items-center justify-end">
 					<button class="btn bg-[#ed1c24] text-white" type="submit"
-						>Confirm Order (Pay on Delivery)</button
+						>Confirm Order and Pay</button
 					>
 				</div>
 
