@@ -2,6 +2,7 @@
 	import Cart from '$lib/components/Cart.svelte';
 	import BillIcon from '$lib/assets/BillIcon.svelte';
 	import StoreDetails from '$lib/components/StoreDetails.svelte';
+	import { Package } from 'lucide-svelte';
 	import type { ActionData, PageData } from './$types';
 	const {
 		form,
@@ -93,7 +94,7 @@
 <div class="flex justify-between gap-2 p-4">
 	<button class="btn bg-[#ed1c24] text-white" onclick={startDownloadQuote}> Download Quote </button>
 
-	<button class="btn bg-[#ed1c24] text-white" onclick={openCheckOutModal}> Checkout </button>
+	<button class="btn bg-[#ed1c24] text-white" onclick={openCheckOutModal}> Place order <Package /> </button>
 </div>
 
 <dialog id="DownloadQuoteModal" class="modal modal-bottom sm:modal-middle" bind:this={modal}>
