@@ -17,6 +17,11 @@
 					<a href="/info/contact" class="text-gray-600 transition-colors hover:text-red-600"
 						>Contact Us</a
 					>
+
+					<a href="/info/careers" class="text-gray-600 transition-colors hover:text-red-600"
+						>Careers</a
+					>
+					
 					<a href="/info/about" class="text-gray-600 transition-colors hover:text-red-600"
 						>About Us</a
 					>
@@ -39,7 +44,7 @@
 			<!-- Conditional Credits Section -->
 			{#if !$page.url.pathname.includes('buy')}
 				<div class="space-y-3 text-center md:text-right">
-					<div class="text-2xl font-bold text-gray-900 gg">WireGuy Electricals Pvt Ltd.</div>
+					<div class="gg text-2xl font-bold text-gray-900">WireGuy Electricals Pvt Ltd.</div>
 					<p class="text-gray-600">
 						© {currentYear} All Rights Reserved
 					</p>
