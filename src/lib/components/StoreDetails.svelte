@@ -1,5 +1,5 @@
 <script>
-	import MainLogo from '$lib/assets/MainLogo.png';
+	import MainLogo from '$lib/assets/MainLogo.webp';
   
 	// Props: 'logo' as true/false, 'name' for text fallback, 'address' for the address
 	let { logo = false, name = "WireGuy", address = "101, Royal Enclave, New RTC colony, Patamata, Vijayawada 520007" } = $props();
