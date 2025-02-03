@@ -1,100 +1,81 @@
-import type { PageServerLoad } from './$types';
-import { db } from "$lib/server/db";
-import { customers } from "$lib/server/db/schema";
-import { eq, and } from 'drizzle-orm';
+import type { Actions } from './$types';
+import { db } from '$lib/server/db';
+import { customers, otps } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
-import { randomBytes } from 'crypto';
-import { env } from '$env/dynamic/private';
 
-function generateSessionId(): string {
-    return randomBytes(32).toString('hex');
-}
+import { TFACTOR_API_KEY, SMS_OTP_TEMPLATE_NAME } from '$env/static/private';
 
-function getSessionExpiration(): Date {
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 15); // Add 15 days
-    return expirationDate;
-}
+export const actions: Actions = {
+	validate: async ({ request, cookies }) => {
+		const data = await request.formData();
+		const phone = data.get('phone')?.toString().trim();
 
-export const actions = {
-    login: async ({ cookies, request }) => {
-        const data = await request.formData();
-        const phone = data.get('phone') as string || '';
-        const password = data.get('password') as string || '';
+		if (!phone || phone.length !== 10) {
+			return fail(400, {
+				success: false,
+				error: 'Please enter a valid 10-digit phone number.'
+			});
+		}
 
+		const customer = await db.select().from(customers).where(eq(customers.phone, phone)).limit(1);
 
-        // Validation
-        if (!phone || !password) {
-            return fail(400, {
-                error: 'Phone and password are required.',
-                missing: !phone ? 'phone' : 'password'
-            });
-        }
+		if (!customer.length) {
+			return fail(404, {
+				success: false,
+				error: "We couldn't find an account with that phone number."
+			});
+		}
 
-        let customerId: number | null = null;
-        let sessionId: string | null = null;
+		// https://2factor.in/API/V1/XXXX-XXXX-XXXX-XXXX-XXXX/SMS/+919999999999/12345/OTP1
 
-        try {
-            // Find the customer with matching credentials
-            const customer = await db.select()
-                .from(customers)
-                .where(
-                    and(
-                        eq(customers.phone, phone),
-                        eq(customers.password, password)
-                    )
-                )
-                .limit(1);
+		cookies.set('phone_pending_otp', phone, {
+			path: '/',
+			maxAge: 60 * 60 * 24 * 15
+		});
 
-            console.log('Customer lookup result:', customer);
+		const otp = Math.floor(1000 + Math.random() * 9000);
+		console.log('Generated OTP:', otp, 'for phone:', phone);
+		try {
+			await db.insert(otps).values({
+				customer: customer[0].id,
+				otp: otp.toString()
+			});
+		} catch (error) {
+			console.error('Failed to insert OTP:', error);
+			return fail(500, {
+				success: false,
+				error: 'Failed to send OTP. Please try again later.'
+			});
+		}
+		const response = await fetch(
+			`https://2factor.in/API/V1/${TFACTOR_API_KEY}/SMS/${phone}/${otp}/${SMS_OTP_TEMPLATE_NAME}`
+		);
 
-            if (customer.length === 0) {
-                console.log('Invalid credentials');
-                return fail(401, {
-                    error: 'Invalid credentials or account does not exist',
-                });
-            }
+		const json = await response.json();
 
-            // Generate new session
-            sessionId = generateSessionId();
-            const sessionEOL = getSessionExpiration();
+		if (json.Status === 'Success') {
+			throw redirect(302, '/login/otp');
+		}
 
-            // Update customer with new session data
-            await db.update(customers)
-                .set({
-                    sessionId: sessionId,
-                    sessionEOL: sessionEOL
-                })
-                .where(eq(customers.id, customer[0].id));
+		// try {
+		// 	await db.insert(otps).values({
+		// 		customer: customer[0].id,
+		// 		otp: otp.toString()
+		// 	});
+		// } catch (error) {
+		// 	console.error('Failed to insert OTP:', error);
+		// 	return fail(500, {
+		// 		success: false,
+		// 		error: 'Failed to send OTP. Please try again later.'
+		// 	});
+		// }
 
-            customerId = customer[0].id;
+		// throw redirect(302, '/login/otp');
 
-            // Set session cookie
-            cookies.set('sessionId', sessionId, {
-                path: '/',
-                httpOnly: true,
-                secure: env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 60 * 60 * 24 * 15 // 15 days in seconds
-            });
-
-            console.log('Login successful:', {
-                id: customerId,
-                sessionId,
-                sessionEOL
-            });
-
-        } catch (error) {
-            console.error('Error during login:', error);
-            return fail(500, { error: 'Internal server error. Please try again later.' });
-        }
-
-        // Only redirect if login and session creation were successful
-        if (customerId && sessionId) {
-            throw redirect(302, '/');
-        }
-
-        // Fallback error if we somehow get here
-        return fail(500, { error: 'Failed to complete login process.' });
-    }
+		return fail(500, {
+			success: false,
+			error: 'Failed to send OTP. Please try again later.'
+		});
+	}
 };
