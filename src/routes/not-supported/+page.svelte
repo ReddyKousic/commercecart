@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-	import MainLogo from '$lib/assets/MainLogo.png';
+	import MainLogo from '$lib/assets/MainLogo.webp';
 </script>
 
 <div class="not-supported">

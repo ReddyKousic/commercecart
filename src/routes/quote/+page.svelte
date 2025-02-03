@@ -2,7 +2,7 @@
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import logo from '$lib/assets/MainLogo.png';
+	import logo from '$lib/assets/MainLogo.webp';
 	let { data }: { data: PageData } = $props();
 
 	let name = $state('');
