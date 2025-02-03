@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Footer from '$lib/components/Footer.svelte';
 	import StoreDetails from '$lib/components/StoreDetails.svelte';
 
 	interface Job {
@@ -34,7 +35,7 @@
 			experience: '2-5 years',
 			age: '22-35',
 			status: 'active',
-			created_at: '2025-01-15T12:00:00Z'
+			created_at: '2025-02-03T12:00:00Z'
 		}
 	];
 
@@ -48,6 +49,7 @@
 <StoreDetails logo={true} />
 <hr class="mt-4" />
 <section class="mx-auto max-w-7xl px-4 py-4">
+    <h2 class="text-center mb-4 text-2xl font-semibold">Careers</h2>
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#each filteredProducts as product}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -57,7 +59,7 @@
 				onclick={product.status === 'inactive' ? handleInactiveClick : null}
 			>
 				<a
-					href={product.status === 'active' ? `/buy/${product.id}` : null}
+					href={product.status === 'active' ? `/info/contact` : null}
 					class={`${product.status === 'inactive' ? 'pointer-events-none' : ''}`}
 				>
 					<h2 class="text-xl font-semibold">{product.name}</h2>
@@ -94,3 +96,5 @@
 		{/each}
 	</div>
 </section>
+
+<Footer />
