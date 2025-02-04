@@ -62,6 +62,14 @@ export const orders = mysqlTable('orders', {
 	delivery_date: datetime('delivery_date'),
 
 	payment_type: varchar('payment_type', { length: 255 }).notNull(),
+	payment_status: varchar('payment_status', { length: 255 }),
+
+	razorpay_payment_id: varchar('razorpay_payment_id', { length: 255 }),
+
+	razorpay_order_id: varchar('razorpay_order_id', { length: 255 }),
+
+	razorpay_signature: varchar('razorpay_signature', { length: 255 }),
+
 	order_status: varchar('order_status', { length: 255 }).notNull(),
 	created_at: timestamp('uploaded_on').notNull().defaultNow()
 });

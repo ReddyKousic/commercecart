@@ -1,21 +1,33 @@
 <script lang="ts">
 	import Cart from '$lib/components/Cart.svelte';
+	import { enhance } from '$app/forms';
 	import BillIcon from '$lib/assets/BillIcon.svelte';
 	import StoreDetails from '$lib/components/StoreDetails.svelte';
 	import { Package } from 'lucide-svelte';
 	import type { ActionData, PageData } from './$types';
+	// @ts-nocheck
 	const {
 		form,
 		data
 	}: {
 		form: ActionData | null;
-		data: { user: { id: number; phone: string; name: string; email?: string; gstin?:string; address: string,} };
+		data: {
+			user: {
+				id: number;
+				phone: string;
+				name: string;
+				email?: string;
+				gstin?: string;
+				address: string;
+			};
+		};
 	} = $props();
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import LoginIcon from '$lib/assets/LoginIcon.svelte';
 
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
+	// import Razorpay from 'razorpay';
 
 	let customer = $state({
 		name: '',
@@ -48,7 +60,6 @@
 		localStorage.setItem('customer_email', customer.email);
 		localStorage.setItem('customer_address', customer.address);
 		localStorage.setItem('gstin', customer.gstin);
-
 
 		goto('/quote');
 	}
@@ -86,6 +97,94 @@
 			openCheckOutModal();
 		}
 	});
+
+	let rzp_order_id = $state('');
+	let rzp_order_amount = $state(0);
+	function toTwoDecimals(num) {
+		return Number(Number(num).toFixed(2));
+	}
+	async function payNow(lc_orderId: number) {
+		// Open Razorpay Checkout
+		const options = {
+			key: 'rzp_test_3kCKcbW0pNn5nl', // Replace with your Razorpay key_id
+			amount: toTwoDecimals(rzp_order_amount), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+			currency: 'INR',
+			image: 'http://localhost:5173/src/lib/assets/MainLogo.webp',
+			name: 'Wireguy Electricals Private Limited',
+			description: 'Order Payment',
+			order_id: rzp_order_id, // This is the order_id created in the backend
+			callback_url: 'http://localhost:5173/account/orders', // Your success URL
+			prefill: {
+				name: customer.name,
+				email: customer.email,
+				contact: customer.phone
+			},
+			handler: function (response) {
+				alert(response.razorpay_payment_id);
+				alert(response.razorpay_order_id);
+				alert(response.razorpay_signature);
+
+				// Send these details using PATCH to /api/verifyPayment
+
+				fetch('/api/verifyPayment', {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						razorpay_payment_id: response.razorpay_payment_id,
+						razorpay_order_id: response.razorpay_order_id,
+						razorpay_signature: response.razorpay_signature,
+						lc_orderId
+					})
+				})
+					.then((res) => res.json())
+					.then((data) => {
+						console.log(data);
+						if (data.success === true) {
+							alert('Payment successful');
+							localStorage.removeItem('cart');	
+							goto('/account/orders');
+						} else {
+							alert('Payment failed');
+						}
+					})
+					.catch((err) => {
+						console.error(err);
+						alert('Payment failed');
+					});
+			}
+		};
+
+		const rzp = new Razorpay(options);
+		rzp.open();
+	}
+	function handleConfirmOrder() {
+		return async ({
+			result
+		}: {
+			result: {
+				type: string;
+				data: {
+					lc_orderId: number;
+					rzp_order_amount: number;
+					rzp_order_id: string;
+				};
+			};
+		}) => {
+			console.log(result);
+			if (result.type === 'success') {
+				// Access the order_id from the returned data for the ConfirmOrder action
+				rzp_order_id = result.data.rzp_order_id;
+				rzp_order_amount = result.data.rzp_order_amount;
+				console.log(rzp_order_id, rzp_order_amount);
+				console.log(typeof rzp_order_id, typeof rzp_order_amount);
+			}
+
+			closeCheckOutModal();
+			payNow(result.data.lc_orderId);
+		};
+	}
 </script>
 
 <PublicMenu {data} currentPage="cart" />
@@ -94,7 +193,9 @@
 <div class="flex justify-between gap-2 p-4">
 	<button class="btn bg-[#ed1c24] text-white" onclick={startDownloadQuote}> Download Quote </button>
 
-	<button class="btn bg-[#ed1c24] text-white" onclick={openCheckOutModal}> Place order <Package /> </button>
+	<button class="btn bg-[#ed1c24] text-white" onclick={openCheckOutModal}>
+		Place order <Package />
+	</button>
 </div>
 
 <dialog id="DownloadQuoteModal" class="modal modal-bottom sm:modal-middle" bind:this={modal}>
@@ -150,8 +251,6 @@
 					/>
 				</label>
 
-
-				
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					GSTIN
 					<input
@@ -162,7 +261,7 @@
 						bind:value={customer.gstin}
 					/>
 				</label>
-				
+
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Address
 					<input
@@ -208,7 +307,7 @@
 			<h3 class="text-lg font-bold">Checkout Details</h3>
 			<p class="py-2">Please confirm or update your delivery details below.</p>
 
-			<form method="post" action="?/ConfirmOrder">
+			<form method="post" use:enhance={handleConfirmOrder} action="?/ConfirmOrder">
 				<input type="text" name="userId" value={data.user.id} hidden />
 
 				<label class="form-control mb-4 w-full">
@@ -278,9 +377,7 @@
 				<input type="text" class="input grow" name="cart" bind:value={cartJson} hidden />
 
 				<div class="flex items-center justify-end">
-					<button class="btn bg-[#ed1c24] text-white" type="submit"
-						>Confirm Order and Pay</button
-					>
+					<button class="btn bg-[#ed1c24] text-white" type="submit">Confirm Order and Pay</button>
 				</div>
 
 				{#if form?.error}
