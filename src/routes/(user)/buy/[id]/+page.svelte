@@ -130,7 +130,9 @@
 		};
 	}
 	const openModal = () => {
-		modal.showModal();
+		// modal.showModal();
+		goto('/cart');
+
 	};
 
 	const closeModal = () => {
@@ -211,7 +213,7 @@
 						<div class="flex items-center space-x-2">
 							<button
 								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								on:click={() => decrement(variation.id, variation.thickness, color)}
+								onclick={() => decrement(variation.id, variation.thickness, color)}
 							>
 								-
 							</button>
@@ -220,7 +222,7 @@
 							</span>
 							<button
 								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								on:click={() => increment(variation.id, variation.thickness, color)}
+								onclick={() => increment(variation.id, variation.thickness, color)}
 							>
 								+
 							</button>
@@ -239,7 +241,7 @@
 		</div>
 		<button
 			class="btnMx btn flex items-center space-x-2 rounded-lg px-6 py-3 font-medium text-white"
-			on:click={openModal}
+			onclick={openModal}
 		>
 			<span>Proceed</span>
 		</button>
@@ -289,7 +291,7 @@
 			{/if}
 			<p class="py-4">The following details will be included in the Quote PDF</p>
 
-			<form method="post" on:submit={handleDownloadQuote}>
+			<form method="post" onsubmit={handleDownloadQuote}>
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Name
 					<input

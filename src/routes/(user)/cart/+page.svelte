@@ -120,9 +120,6 @@
 				contact: customer.phone
 			},
 			handler: function (response) {
-				alert(response.razorpay_payment_id);
-				alert(response.razorpay_order_id);
-				alert(response.razorpay_signature);
 
 				// Send these details using PATCH to /api/verifyPayment
 
@@ -142,8 +139,8 @@
 					.then((data) => {
 						console.log(data);
 						if (data.success === true) {
-							alert('Payment successful');
-							localStorage.removeItem('cart');	
+							// alert('Payment successful');
+							localStorage.removeItem('cart');
 							goto('/account/orders');
 						} else {
 							alert('Payment failed');
@@ -159,7 +156,11 @@
 		const rzp = new Razorpay(options);
 		rzp.open();
 	}
-	function handleConfirmOrder() {
+	let checkOutError = $state('');
+	async function handleConfirmOrder() {
+		console.log('Confirming order EOL2001');
+		isLoading = true;
+
 		return async ({
 			result
 		}: {
@@ -179,12 +180,24 @@
 				rzp_order_amount = result.data.rzp_order_amount;
 				console.log(rzp_order_id, rzp_order_amount);
 				console.log(typeof rzp_order_id, typeof rzp_order_amount);
-			}
 
-			closeCheckOutModal();
-			payNow(result.data.lc_orderId);
+				closeCheckOutModal();
+				isLoading = false;
+
+				await payNow(result.data.lc_orderId);
+			} else {
+				isLoading = false;
+
+				checkOutError = result.data.error;
+			}
 		};
 	}
+
+	// onMount(() => {
+	// 	openCheckOutModal();
+	// });
+
+	let isLoading = $state(false);
 </script>
 
 <PublicMenu {data} currentPage="cart" />
@@ -308,11 +321,23 @@
 			<p class="py-2">Please confirm or update your delivery details below.</p>
 
 			<form method="post" use:enhance={handleConfirmOrder} action="?/ConfirmOrder">
+				<!-- 
+			<form
+				method="post"
+				use:enhance={() => {
+					isLoading = true;
+					return async ({ result, update }) => {
+						isLoading = false;
+						handleConfirmOrder();
+					};
+				}}
+				action="?/ConfirmOrder"
+			> -->
 				<input type="text" name="userId" value={data.user.id} hidden />
 
 				<label class="form-control mb-4 w-full">
 					<div class="label">
-						<span class="label-text">Name</span>
+						<span class="label-text">Billing Name</span>
 					</div>
 					<input
 						type="text"
@@ -320,12 +345,25 @@
 						placeholder="Your full name"
 						class="input input-bordered w-full"
 						value={data.user.name}
+						required
 					/>
 				</label>
+				<label class="form-control mb-4">
+					<div class="label">
+						<span class="label-text">Billing Address</span>
+					</div>
 
+					<textarea
+						name="co_address"
+						class="textarea textarea-bordered h-24"
+						placeholder="Address linked to your payment method"
+						value={data.user.address}
+						required
+					></textarea>
+				</label>
 				<label class="form-control mb-4 w-full">
 					<div class="label">
-						<span class="label-text">Phone (used for delivery)</span>
+						<span class="label-text">Billing Phone</span>
 					</div>
 					<input
 						name="co_phone"
@@ -334,6 +372,7 @@
 						maxlength="10"
 						class="input input-bordered w-full"
 						value={data.user.phone}
+						required
 					/>
 				</label>
 
@@ -350,41 +389,108 @@
 					/>
 				</label>
 
-				<label class="form-control mb-4">
+				<label class="form-control mb-4 w-full">
 					<div class="label">
-						<span class="label-text">Address</span>
+						<span class="label-text">GST Number (Optional)</span>
 					</div>
-
-					<textarea
-						name="co_address"
-						class="textarea textarea-bordered h-24"
-						placeholder="Address of your home"
-						value={data.user.address}
-					></textarea>
+					<input
+						type="text"
+						name="co_gstin"
+						placeholder="Eg. 22AAAAA0000A1Z5"
+						class="input input-bordered w-full"
+						maxlength="15"
+						minlength="15"
+					/>
 				</label>
 
 				<label class="form-control mb-4">
 					<div class="label">
-						<span class="label-text">Delivery notes (optional)</span>
+						<span class="label-text">Delivery Address</span>
+					</div>
+
+					<textarea
+						name="delivery_address"
+						class="textarea textarea-bordered h-24"
+						placeholder="Address where you want your order to be delivered"
+						required
+					></textarea>
+				</label>
+
+				<label class="form-control mb-4 w-full">
+					<div class="label">
+						<span class="label-text">Pincode</span>
+					</div>
+					<input
+						name="pincode"
+						placeholder="Eg. 522237"
+						minlength="6"
+						maxlength="6"
+						class="input input-bordered w-full"
+						required
+					/>
+				</label>
+
+				<label class="form-control mb-4 w-full">
+					<div class="label">
+						<span class="label-text">Delivery Phone</span>
+					</div>
+					<input
+						name="delivery_phone"
+						placeholder="9999999999"
+						minlength="10"
+						maxlength="10"
+						class="input input-bordered w-full"
+						required
+					/>
+				</label>
+
+				<label class="form-control mb-4">
+					<div class="label">
+						<span class="label-text">Delivery Notes</span>
 					</div>
 
 					<textarea
 						name="delivery_notes"
 						class="textarea textarea-bordered h-24"
-						placeholder="Only mornings."
+						placeholder="Notes for the delivery executive"
 					></textarea>
 				</label>
+
+				<label class="form-control mb-4 w-full">
+					<div class="label">
+						<span class="label-text">Partner Code (Optional)</span>
+					</div>
+					<input
+						name="partner_code"
+						placeholder="Eg. K090"
+						minlength="3"
+						maxlength="15"
+						class="input input-bordered w-full"
+					/>
+				</label>
+
 				<input type="text" class="input grow" name="cart" bind:value={cartJson} hidden />
 
+				{#if checkOutError}
+					<div class="alert alert-error mt-4">
+						{checkOutError}
+					</div>
+				{/if}
 				<div class="flex items-center justify-end">
-					<button class="btn bg-[#ed1c24] text-white" type="submit">Confirm Order and Pay</button>
+					<button class="btn bg-[#ed1c24] text-white" type="submit" disabled={isLoading}>
+						{#if isLoading}
+							<span class="loading loading-dots loading-xs"></span>
+						{:else}
+							Confrim Order and Pay
+						{/if}
+					</button>
 				</div>
-
+<!-- 
 				{#if form?.error}
 					<div class="alert alert-error mt-4">
 						{form.error}
 					</div>
-				{/if}
+				{/if} -->
 			</form>
 		{:else}
 			<h3 class="mt-4 text-lg font-bold">Login</h3>

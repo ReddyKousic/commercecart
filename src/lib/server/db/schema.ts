@@ -58,6 +58,13 @@ export const orders = mysqlTable('orders', {
 	co_address: text('co_address').notNull(),
 	co_email: varchar('co_email', { length: 255 }),
 	co_gstin: text('co_gstin'),
+
+	// delivery details
+	delivery_address: text('delivery_address').notNull(),
+	delivery_phone: varchar('delivery_phone', { length: 255 }).notNull(),
+	partner_code: varchar('partner_code', { length: 255 }),
+	pincode: int('pincode').notNull(),
+
 	delivery_notes: text('delivery_notes'),
 	delivery_date: datetime('delivery_date'),
 
@@ -89,7 +96,7 @@ export const partners = mysqlTable('partners', {
 	id: int('id').primaryKey().autoincrement(),
 	partner_name: varchar('partner_name', { length: 255 }).notNull(),
 	partner_phone: varchar('partner_phone', { length: 255 }),
-	partner_code: varchar('partner_code', { length: 255 }).notNull(),
+	partner_code: varchar('partner_code', { length: 255 }).notNull().unique(),
 	overall_discount: decimal('overall_discount', { precision: 5, scale: 2 }).default('0'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow()
 });
