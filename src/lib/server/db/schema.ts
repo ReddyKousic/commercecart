@@ -35,12 +35,12 @@ export const product_variations = mysqlTable('product_variations', {
 
 export const customers = mysqlTable('customers', {
 	id: int('id').primaryKey().autoincrement(),
-	name: varchar('name', { length: 255 }).notNull(),
+	name: varchar('name', { length: 255 }),
 	email: varchar('email', { length: 255 }),
 	phone: varchar('phone', { length: 255 }).notNull(),
 	address: text('address'),
 	gstin: text('gstin'),
-	password: varchar('password', { length: 255 }).notNull(),
+	password: varchar('password', { length: 255 }),
 	sessionId: varchar('sessionId', { length: 255 }),
 	sessionEOL: datetime('sessionEOL'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow()

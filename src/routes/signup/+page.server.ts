@@ -6,6 +6,11 @@ import { fail, redirect } from '@sveltejs/kit';
 import { randomBytes } from 'crypto';
 import { env } from '$env/dynamic/private';
 
+export const load: PageServerLoad = async ({ url, cookies }) => {
+    redirect(302, '/login');
+};
+
+
 function isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);

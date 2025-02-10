@@ -29,11 +29,10 @@
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
 	import { PUBLIC_RAZORPAY_ID } from '$env/static/public';
 	// import Razorpay from 'razorpay';
-    import { page } from '$app/stores';
-    
-    let hostname = $state('');
-	$effect(() => {
+	import { page } from '$app/stores';
 
+	let hostname = $state('');
+	$effect(() => {
 		hostname = $page.url.origin;
 		console.log(hostname);
 	});
@@ -114,7 +113,7 @@
 	async function payNow(lc_orderId: number) {
 		// Open Razorpay Checkout
 		const options = {
-			key: {PUBLIC_RAZORPAY_ID}, // Replace with your Razorpay key_id
+			key: { PUBLIC_RAZORPAY_ID }, // Replace with your Razorpay key_id
 			amount: toTwoDecimals(rzp_order_amount), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
 			currency: 'INR',
 			image: `${hostname}/src/lib/assets/MainLogo.webp`,
@@ -128,7 +127,6 @@
 				contact: customer.phone
 			},
 			handler: function (response) {
-
 				// Send these details using PATCH to /api/verifyPayment
 
 				fetch('/api/verifyPayment', {
@@ -493,7 +491,7 @@
 						{/if}
 					</button>
 				</div>
-<!-- 
+				<!-- 
 				{#if form?.error}
 					<div class="alert alert-error mt-4">
 						{form.error}
@@ -504,10 +502,10 @@
 			<h3 class="mt-4 text-lg font-bold">Login</h3>
 
 			<p class="py-4">
-				Please login to map this order to your account.<br /> No account? Create one.
+				Please login to map this order to your account. A Login will automatically creatre an account.
 			</p>
 
-			<form method="post" action="?/ManageCheckoutLogin">
+			<!-- <form method="post" action="?/ManageCheckoutLogin">
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Phone
 					<input
@@ -553,7 +551,16 @@
 						{form.error}
 					</div>
 				{/if}
-			</form>
+			</form> -->
+			<div class="flex items-center justify-between">
+				<div></div>
+
+				<a class="btn bg-[#ed1c24] text-white" href="/login?redirect=/cart">
+					Login
+
+					<LoginIcon />
+				</a>
+			</div>
 		{/if}
 	</div>
 </dialog>

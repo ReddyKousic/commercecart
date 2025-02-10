@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { PageData } from './$types';
-
+	import { Trash2 } from 'lucide-svelte';
 	export let data: PageData;
 	$: product = data.product;
 	$: variations = data.variations;
@@ -62,17 +62,53 @@
 			console.error('Failed to save variation:', error);
 		}
 	}
+
+	async function deleteProduct(productId: number): Promise<void> {
+		try {
+			const response = await fetch(`/api/products/${productId}`, {
+				method: 'DELETE'
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json(); // Try to get error details
+				throw new Error(errorData.error || `HTTP error! status: ${response.status}`); // Throw with error message
+			}
+
+			const data = await response.json(); // Get the JSON response
+
+			if (data.success) {
+				await invalidateAll(); // Invalidate cached data
+				console.log(data.message); // Log the success message
+				// Optionally, you can redirect or update UI here
+				goto('/manage/products');
+			} else {
+				console.error(data.error || 'Product deletion failed.'); // Handle specific errors
+			}
+		} catch (error) {
+			console.error('Error deleting product:', error); // Handle network or other errors
+			// Optionally, display an error message to the user
+			alert('Error deleting product. Please try again later.'); // Example alert
+		}
+	}
+
+	async function handleDelete(product: Product) {
+		// Pass the product object
+		if (confirm(`Are you sure you want to delete ${product.name}?`)) {
+			// Confirm before deleting
+			await deleteProduct(product.id);
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-4xl px-4 py-8">
-	<div class="mb-4 rounded-lg bg-white p-3 border">
+	<div class="mb-4 rounded-lg border bg-white p-3">
 		{#if !editing}
 			<div class="mb-4 flex items-start justify-between">
 				<div>
 					<h1 class="mb-2 text-3xl font-bold">{product[0].name}</h1>
 					<p class="mb-4 text-gray-600">{product[0].description}</p>
 				</div>
-			
+
 				<button
 					type="button"
 					on:click={() => (editing = true)}
@@ -80,15 +116,15 @@
 				>
 			</div>
 			<span
-			class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {product[0]
-				.selling_status === 'active'
-				? 'bg-green-100 text-green-800'
-				: product[0].selling_status === 'inactive'
-					? 'bg-red-100 text-red-800'
-					: 'bg-gray-100 text-gray-800'}"
-		>
-			{product[0].selling_status}
-		</span>
+				class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {product[0]
+					.selling_status === 'active'
+					? 'bg-green-100 text-green-800'
+					: product[0].selling_status === 'inactive'
+						? 'bg-red-100 text-red-800'
+						: 'bg-gray-100 text-gray-800'}"
+			>
+				{product[0].selling_status}
+			</span>
 		{:else}
 			<div class="space-y-4">
 				<label class="input input-bordered flex items-center gap-2">
@@ -112,11 +148,17 @@
 					<option value="active">Active</option>
 					<option value="inactive">Inactive</option>
 				</select>
-				<div class="flex gap-2">
-					<button on:click={saveProduct} class="rounded px-4 py-2">Save</button>
-					<button
-						on:click={() => (editing = false)}
-						class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">Cancel</button
+				<div class="flex items-center justify-between gap-2">
+					<div>
+						<button on:click={saveProduct} class="rounded px-4 py-2">Save</button>
+						<button
+							on:click={() => (editing = false)}
+							class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">Cancel</button
+						>
+					</div>
+
+					<button class="btn border-red-700" on:click={handleDelete(product[0])}
+						><Trash2 color="#D32F2F" /></button
 					>
 				</div>
 			</div>

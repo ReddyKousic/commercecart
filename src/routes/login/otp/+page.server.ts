@@ -21,7 +21,6 @@ function getSessionExpiration(): Date {
 	expirationDate.setDate(expirationDate.getDate() + 15); // Add 15 days
 	return expirationDate;
 }
-
 export const actions: Actions = {
 	verify: async ({ request, cookies }) => {
 		const data = await request.formData();
@@ -31,7 +30,7 @@ export const actions: Actions = {
 		if (!otp || otp.length !== 4) {
 			return fail(400, {
 				success: false,
-				error: 'Inavlid OTP. Please enter a 4-digit OTP.'
+				error: 'Invalid OTP. Please enter a 4-digit OTP.'
 			});
 		}
 
@@ -82,14 +81,27 @@ export const actions: Actions = {
 			maxAge: 60 * 60 * 24 * 15 // 15 days in seconds
 		});
 
+		// Get redirect path from the cookie (if exists)
+		const redirectPath = cookies.get('redirect_after_login') || '/';
+
+		// Clear the redirect cookie after use
+		cookies.delete('redirect_after_login', {
+			path: '/',
+			maxAge: 60 * 5,
+			httpOnly: true,
+			secure: NODE_ENV === 'production',
+			sameSite: 'lax'
+		});
+
 		console.log('Login successful:', {
 			id: customerId,
 			sessionId,
-			sessionEOL
+			sessionEOL,
+			redirectPath
 		});
 
 		if (customerId && sessionId) {
-			throw redirect(302, '/');
+			throw redirect(302, redirectPath);
 		}
 	}
 } satisfies Actions;

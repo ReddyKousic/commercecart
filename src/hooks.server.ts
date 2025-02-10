@@ -28,9 +28,9 @@ export const handle: Handle = async ({ event, resolve }) => {
                 id: userRecord[0].id,
                 phone: userRecord[0].phone,
                 name: userRecord[0].name,
-                email: userRecord[0].email || "No Email provided",
-                address: userRecord[0].address || "No Address provided",
-                gstin: userRecord[0].gstin || "No GSTIN provided"
+                email: userRecord[0].email ,
+                address: userRecord[0].address ,
+                gstin: userRecord[0].gstin
 
             };
             

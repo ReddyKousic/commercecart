@@ -28,6 +28,7 @@
 				class="input input-bordered w-full max-w-xs"
 				minlength="6"
 				name="password"
+				autocomplete="on"
 			/>
 		</label>
 
