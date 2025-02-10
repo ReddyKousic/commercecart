@@ -8,6 +8,8 @@
 	let { data }: { data: PageData } = $props();
 	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
 
+	const isolated_colors = ['Standard'];
+
 	interface CartItem {
 		variationId: number;
 		productId: number;
@@ -34,13 +36,17 @@
 		// Initialize quantities for all variations
 		data.variations.forEach((variation) => {
 			quantities[variation.id] = {};
-			colors.forEach((color) => {
+
+			// Determine the correct color set
+			const colorSet = data.product[0].is_isolated ? isolated_colors : colors;
+
+			colorSet.forEach((color) => {
 				// Set initial quantity to 0
 				quantities[variation.id][color] = 0;
-				
+
 				// If this variation and color exists in cart, update the quantity
 				const cartItem = cart.find(
-					item => item.variationId === variation.id && item.color === color
+					(item) => item.variationId === variation.id && item.color === color
 				);
 				if (cartItem) {
 					quantities[variation.id][color] = cartItem.quantity;
@@ -107,77 +113,9 @@
 		}
 	}
 
-	let modal: HTMLDialogElement;
-
-	let customer = $state({
-		name: '',
-		phone: '',
-		email: '',
-		gstin: '',
-		address: '',
-		pincode: '',
-		partner_code: ''
-	});
-	if (data.user) {
-		customer = {
-			name: data.user.name,
-			phone: data.user.phone,
-			email: data.user.email || '',
-			gstin: '',
-			address: data.user.address,
-			pincode: '',
-			partner_code: ''
-		};
-	}
-	const openModal = () => {
-		// modal.showModal();
+	const gotoCart = () => {
 		goto('/cart');
-
 	};
-
-	const closeModal = () => {
-		modal.close();
-	};
-
-	async function handleDownloadQuote(event: { preventDefault: () => void }) {
-		event.preventDefault();
-
-		localStorage.setItem('customer_name', customer.name);
-		localStorage.setItem('partner_code', customer.partner_code);
-
-		localStorage.setItem('customer_phone', customer.phone);
-		localStorage.setItem('customer_email', customer.email);
-		localStorage.setItem('customer_address', customer.address);
-		localStorage.setItem('gstin', customer.gstin);
-		localStorage.setItem('pincode', customer.pincode);
-
-		if (customer.partner_code !== '') {
-			try {
-				const response = await fetch(`/api/partners/${customer.partner_code}`);
-
-				if (response.status === 200) {
-					const partner = await response.json();
-					if (partner) {
-						localStorage.setItem(
-							'partner_overall_discount_percentage',
-							parseFloat(partner.overall_discount)
-						);
-					}
-				} else if (response.status === 404) {
-					alert('Partner not found. Please check the partner code.');
-					return;
-				} else {
-					alert('An error occurred while fetching partner details. Please try again later.');
-					return;
-				}
-			} catch (error) {
-				alert('An error occurred while fetching partner details. Please try again later.');
-				return;
-			}
-		}
-
-		goto('/cart');
-	}
 </script>
 
 <PublicMenu currentPage={'buy'} {data} />
@@ -188,50 +126,101 @@
 </div>
 
 <div class="grid grid-cols-1 gap-6 p-2 md:grid-cols-2 lg:grid-cols-3">
-	{#each data.variations as variation}
-		<div class="mb-2 block rounded-lg border p-4 shadow-sm">
-			<div class="sub-heading flex justify-between">
-				<h2 class="text-2xl font-medium">{variation.thickness}</h2>
-				<div class="prices flex flex-col">
-					{#if variation.discount_percentage && parseFloat(variation.discount_percentage) > 0}
-						<h2 class="text-gray-500 line-through">₹{variation.price}</h2>
-						<h2 class="font-bold text-red-600">
-							₹{(
-								variation.price -
-								(variation.price * parseFloat(variation.discount_percentage)) / 100
-							).toFixed(2)}
-						</h2>
-					{:else}
-						<h2 class="font-bold text-red-600">₹{variation.price}</h2>
-					{/if}
+	<!-- For Isolated Products -->
+	{#if data.product[0].is_isolated === true}
+		{#each data.variations as variation}
+			<div class="mb-2 block rounded-lg border p-4 shadow-sm">
+				
+				<div class="colors mt-3 flex flex-col space-y-2">
+					{#each isolated_colors as color}
+						<div class="flex items-center justify-between">
+							<!-- <p class="font-medium">{color}</p> -->
+							<div class="sub-heading flex justify-between">
+								<!-- <h2 class="text-2xl font-medium">{variation.thickness}</h2> -->
+								<div class="prices flex flex-col">
+									{#if variation.discount_percentage && parseFloat(variation.discount_percentage) > 0}
+										<h2 class="text-gray-500 line-through">₹{variation.price}</h2>
+										<h2 class="font-bold text-red-600">
+											₹{(
+												variation.price -
+												(variation.price * parseFloat(variation.discount_percentage)) / 100
+											).toFixed(2)}
+										</h2>
+									{:else}
+										<h2 class="font-bold text-red-600">₹{variation.price}</h2>
+									{/if}
+								</div>
+							</div>
+							<div class="flex items-center space-x-2">
+								<button
+									class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+									onclick={() => decrement(variation.id, variation.thickness, color)}
+								>
+									-
+								</button>
+								<span class="w-8 text-center">
+									{quantities[variation.id]?.[color] || 0}
+								</span>
+								<button
+									class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+									onclick={() => increment(variation.id, variation.thickness, color)}
+								>
+									+
+								</button>
+							</div>
+						</div>
+					{/each}
 				</div>
 			</div>
-			<div class="colors mt-3 flex flex-col space-y-2">
-				{#each colors as color}
-					<div class="flex items-center justify-between">
-						<p class="font-medium">{color}</p>
-						<div class="flex items-center space-x-2">
-							<button
-								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								onclick={() => decrement(variation.id, variation.thickness, color)}
-							>
-								-
-							</button>
-							<span class="w-8 text-center">
-								{quantities[variation.id]?.[color] || 0}
-							</span>
-							<button
-								class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
-								onclick={() => increment(variation.id, variation.thickness, color)}
-							>
-								+
-							</button>
-						</div>
+		{/each}
+	{:else}
+		<!-- For Normal Products -->
+
+		{#each data.variations as variation}
+			<div class="mb-2 block rounded-lg border p-4 shadow-sm">
+				<div class="sub-heading flex justify-between">
+					<h2 class="text-2xl font-medium">{variation.thickness}</h2>
+					<div class="prices flex flex-col">
+						{#if variation.discount_percentage && parseFloat(variation.discount_percentage) > 0}
+							<h2 class="text-gray-500 line-through">₹{variation.price}</h2>
+							<h2 class="font-bold text-red-600">
+								₹{(
+									variation.price -
+									(variation.price * parseFloat(variation.discount_percentage)) / 100
+								).toFixed(2)}
+							</h2>
+						{:else}
+							<h2 class="font-bold text-red-600">₹{variation.price}</h2>
+						{/if}
 					</div>
-				{/each}
+				</div>
+				<div class="colors mt-3 flex flex-col space-y-2">
+					{#each colors as color}
+						<div class="flex items-center justify-between">
+							<p class="font-medium">{color}</p>
+							<div class="flex items-center space-x-2">
+								<button
+									class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+									onclick={() => decrement(variation.id, variation.thickness, color)}
+								>
+									-
+								</button>
+								<span class="w-8 text-center">
+									{quantities[variation.id]?.[color] || 0}
+								</span>
+								<button
+									class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300"
+									onclick={() => increment(variation.id, variation.thickness, color)}
+								>
+									+
+								</button>
+							</div>
+						</div>
+					{/each}
+				</div>
 			</div>
-		</div>
-	{/each}
+		{/each}
+	{/if}
 </div>
 
 <div class="fixed bottom-0 left-0 right-0 z-50 border-t bg-white p-4 shadow-lg">
@@ -241,14 +230,14 @@
 		</div>
 		<button
 			class="btnMx btn flex items-center space-x-2 rounded-lg px-6 py-3 font-medium text-white"
-			onclick={openModal}
+			onclick={gotoCart}
 		>
 			<span>Proceed</span>
 		</button>
 	</div>
 </div>
 
-<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-60 ">
+<div class="mx-auto mb-6 max-w-2xl rounded-lg bg-white p-4 pb-60">
 	<h2 class="mb-4 text-xl font-bold">Cart Summary</h2>
 	{#if cart.length === 0}
 		<p class="text-gray-500">Your cart is empty</p>
@@ -264,134 +253,22 @@
 					</div>
 					<div class="text-right">
 						<p class="text-gray-500 line-through">₹{(item.price * item.quantity).toFixed(2)}</p>
-						<p class="font-bold text-red-600">₹{(item.discountedPrice * item.quantity).toFixed(2)}</p>
+						<p class="font-bold text-red-600">
+							₹{(item.discountedPrice * item.quantity).toFixed(2)}
+						</p>
 
 						<p class="text-sm text-gray-600">Qty: {item.quantity}</p>
 					</div>
 				</div>
 			{/each}
 			<div class="pt-4 text-right font-bold">
-				Total: ₹{cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0).toFixed(2)}
+				Total: ₹{cart
+					.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0)
+					.toFixed(2)}
 			</div>
 		</div>
 	{/if}
 </div>
-
-<dialog id="DownloadQuoteModal" class="modal modal-bottom sm:modal-middle" bind:this={modal}>
-	<div class="modal-box">
-		{#if cart.length === 0}
-			<p class="text-gray-500">
-				Your cart is empty. Add items to the cart to order or download the quote.
-			</p>
-		{:else}
-			{#if data.user}
-				<h3 class="text-lg font-bold">Confirm the data</h3>
-			{:else}
-				<h3 class="text-lg font-bold">Download or CheckOut</h3>
-			{/if}
-			<p class="py-4">The following details will be included in the Quote PDF</p>
-
-			<form method="post" onsubmit={handleDownloadQuote}>
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Name
-					<input
-						type="text"
-						class="grow"
-						name="name"
-						placeholder="MD Waasim"
-						bind:value={customer.name}
-						required
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Phone
-					<input
-						type="tel"
-						class="grow"
-						name="phone"
-						placeholder="9999999999"
-						minlength="10"
-						maxlength="10"
-						bind:value={customer.phone}
-						required
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Email
-					<input
-						type="email"
-						class="grow"
-						name="email"
-						placeholder="Optional"
-						bind:value={customer.email}
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					GSTIN
-					<input
-						type="text"
-						class="grow"
-						name="email"
-						placeholder="Optional"
-						bind:value={customer.gstin}
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Address
-					<input
-						type="text"
-						class="grow"
-						name="address"
-						placeholder="101, Royal Enclave, New RTC colony, Patamata, Vijayawada 520007"
-						aria-label="address"
-						bind:value={customer.address}
-						required
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Pincode
-					<input
-						type="text"
-						class="grow"
-						name="pincode"
-						placeholder="520007"
-						aria-label="pincode"
-						bind:value={customer.pincode}
-						required
-					/>
-				</label>
-
-				<label class="input input-bordered mb-4 flex items-center gap-2">
-					Partner Code
-					<input
-						type="text"
-						class="grow"
-						name="partner_code"
-						placeholder="Optional"
-						minlength="3"
-						bind:value={customer.partner_code}
-					/>
-				</label>
-
-				<input type="text" class="grow" name="address" bind:value={cart} hidden />
-
-				<div class="flex items-center justify-between">
-					<!-- <a href="/cart">
-						<button class="sec btn" type="button">Checkout</button>
-					</a> -->
-					<div></div>
-
-					<button class="btn bg-[#ed1c24] text-white" type="submit">Next <ArrowBigRight /></button>
-				</div>
-			</form>
-		{/if}
-	</div>
-</dialog>
 
 <style>
 	.btnMx {

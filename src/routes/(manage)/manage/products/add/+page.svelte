@@ -6,8 +6,8 @@
 	const colors = ['Red', 'Black', 'Green', 'Blue', 'Yellow'];
 	// const lengths = ['90', '180'];
 	// const types = ['FR', 'FRLS'];
-	const thicknesses = ["1 Sq.mm", "1.5 Sq.mm", "2.5 Sq.mm", "4 Sq.mm", "6 Sq.mm" ];
-
+	const thicknesses = ['1 Sq.mm', '1.5 Sq.mm', '2.5 Sq.mm', '4 Sq.mm', '6 Sq.mm'];
+	let isolated = false;
 	let variations: {
 		// color: string;
 		// length: string;
@@ -28,7 +28,6 @@
 			// const key = `${v.color}-${v.length}-${v.type}-${v.thickness}`;
 			// const key = `${v.color}-${v.thickness}`;
 			const key = `${v.thickness}`;
-
 
 			if (seen.has(key)) {
 				variations[i].error = 'Duplicate combination';
@@ -65,8 +64,6 @@
 			// (v) => v.error || !v.color || !v.length || !v.type || !v.price
 			// (v) => v.error || !v.color || !v.price
 			(v) => v.error || !v.price
-
-
 		);
 
 		if (hasErrors) {
@@ -123,23 +120,56 @@
 		<option value="inactive">Inactive</option>
 	</select>
 
-	<div class="space-y-4">
-		<h3>Product Variations</h3>
-		<button type="button" on:click={addVariation} class="btn rounded px-4 py-2">
-			Add Variation
-		</button>
+	<div class="form-control">
+		<label class="label cursor-pointer">
+			<span class="label-text text-xl">Isolated?</span>
+			<input type="checkbox" class="toggle" name="isolated" value="true" bind:checked={isolated} />
+		</label>
+	</div>
 
-		{#each variations as variation, i}
-			<div class="space-y-4 rounded border p-4">
-				<div class="flex justify-between">
-					<h4>Variation {i + 1}</h4>
-					<button type="button" on:click={() => removeVariation(i)} class="btn text-red-500">
-						Remove
-					</button>
-				</div>
+	{#if isolated}
+		<div>
+			<label>Discount Percentage</label>
+			<input
+				type="number"
+				min="0"
+				max="100"
+				step="0.01"
+				class="w-full rounded border p-2"
+				name="isolated_discount_percentage"
+				required
+			/>
+		</div>
 
-				<div class="grid grid-cols-2 gap-4">
-					<!-- <div>
+		<div>
+			<label>Price</label>
+			<input
+				type="number"
+				min="0"
+				step="0.01"
+				name="isolated_price"
+				class="w-full rounded border p-2"
+				required
+			/>
+		</div>
+	{:else}
+		<div class="space-y-4">
+			<h3>Product Variations</h3>
+			<button type="button" on:click={addVariation} class="btn rounded px-4 py-2">
+				Add Variation
+			</button>
+
+			{#each variations as variation, i}
+				<div class="space-y-4 rounded border p-4">
+					<div class="flex justify-between">
+						<h4>Variation {i + 1}</h4>
+						<button type="button" on:click={() => removeVariation(i)} class="btn text-red-500">
+							Remove
+						</button>
+					</div>
+
+					<div class="grid grid-cols-2 gap-4">
+						<!-- <div>
 						<label>Color</label>
 						<select bind:value={variation.color} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Color</option>
@@ -149,7 +179,7 @@
 						</select>
 					</div> -->
 
-					<!-- <div>
+						<!-- <div>
 						<label>Length (Meters)</label>
 						<select bind:value={variation.length} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Length</option>
@@ -159,7 +189,7 @@
 						</select>
 					</div> -->
 
-					<!-- <div>
+						<!-- <div>
 						<label>Type</label>
 						<select bind:value={variation.type} class="w-full rounded border p-2" required>
 							<option value="" disabled>Select Type</option>
@@ -169,48 +199,49 @@
 						</select>
 					</div> -->
 
-					<div>
-						<label>Thickness</label>
-						<select bind:value={variation.thickness} class="w-full rounded border p-2" required>
-							<option value="" disabled>Select Thickness</option>
-							{#each thicknesses as thickness}
-								<option value={thickness}>{thickness}</option>
-							{/each}
-						</select>
+						<div>
+							<label>Thickness</label>
+							<select bind:value={variation.thickness} class="w-full rounded border p-2" required>
+								<option value="" disabled>Select Thickness</option>
+								{#each thicknesses as thickness}
+									<option value={thickness}>{thickness}</option>
+								{/each}
+							</select>
+						</div>
+
+						<div>
+							<label>Discount Percentage</label>
+							<input
+								type="number"
+								min="0"
+								max="100"
+								step="0.01"
+								bind:value={variation.discount_percentage}
+								class="w-full rounded border p-2"
+								required
+							/>
+						</div>
+
+						<div>
+							<label>Price</label>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								bind:value={variation.price}
+								class="w-full rounded border p-2"
+								required
+							/>
+						</div>
 					</div>
 
-					<div>
-						<label>Discount Percentage</label>
-						<input
-							type="number"
-							min="0"
-							max="100"
-							step="0.01"
-							bind:value={variation.discount_percentage}
-							class="w-full rounded border p-2"
-							required
-						/>
-					</div>
-
-					<div>
-						<label>Price</label>
-						<input
-							type="number"
-							min="0"
-							step="0.01"
-							bind:value={variation.price}
-							class="w-full rounded border p-2"
-							required
-						/>
-					</div>
+					{#if variation.error}
+						<div class="text-sm text-red-500">{variation.error}</div>
+					{/if}
 				</div>
-
-				{#if variation.error}
-					<div class="text-sm text-red-500">{variation.error}</div>
-				{/if}
-			</div>
-		{/each}
-	</div>
+			{/each}
+		</div>
+	{/if}
 
 	<input type="hidden" name="variations" value={JSON.stringify(variations)} />
 

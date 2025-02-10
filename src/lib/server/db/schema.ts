@@ -7,7 +7,8 @@ import {
 	datetime,
 	timestamp,
 	json,
-	decimal
+	decimal,
+	boolean
 } from 'drizzle-orm/mysql-core';
 
 export const products = mysqlTable('products', {
@@ -15,6 +16,7 @@ export const products = mysqlTable('products', {
 	name: varchar('name', { length: 255 }).notNull(),
 	description: varchar('description', { length: 255 }),
 	selling_status: varchar('selling_status', { length: 255 }).notNull(),
+	is_isolated: boolean('is_isolated').notNull().default(false).notNull(),
 	created_at: timestamp('uploaded_on').notNull().defaultNow()
 });
 

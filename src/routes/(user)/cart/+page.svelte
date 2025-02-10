@@ -303,7 +303,7 @@
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Partner Code
 					<input
-						type="tel"
+						type="text"
 						class="grow"
 						name="partner_code"
 						placeholder="K029  (Optional)"
