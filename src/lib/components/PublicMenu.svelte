@@ -46,7 +46,7 @@
 
 <!-- User Message -->
 {#if data.user}
-    <p class="mt-2 text-center text-sm text-gray-700">Welcome, {data.user.name}</p>
+    <p class="mt-2 text-center text-sm text-gray-700">Welcome, {data.user.phone}</p>
 {:else}
     <p class="mt-2 text-center text-sm text-gray-600">Please login to view your account</p>
 {/if}
