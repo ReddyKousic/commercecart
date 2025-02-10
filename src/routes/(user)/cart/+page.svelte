@@ -27,8 +27,16 @@
 	import LoginIcon from '$lib/assets/LoginIcon.svelte';
 
 	import PublicMenu from '$lib/components/PublicMenu.svelte';
+	import { PUBLIC_RAZORPAY_ID } from '$env/static/public';
 	// import Razorpay from 'razorpay';
+    import { page } from '$app/stores';
+    
+    let hostname = $state('');
+	$effect(() => {
 
+		hostname = $page.url.origin;
+		console.log(hostname);
+	});
 	let customer = $state({
 		name: '',
 		phone: '',
@@ -106,14 +114,14 @@
 	async function payNow(lc_orderId: number) {
 		// Open Razorpay Checkout
 		const options = {
-			key: 'rzp_test_3kCKcbW0pNn5nl', // Replace with your Razorpay key_id
+			key: {PUBLIC_RAZORPAY_ID}, // Replace with your Razorpay key_id
 			amount: toTwoDecimals(rzp_order_amount), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
 			currency: 'INR',
-			image: 'http://localhost:5173/src/lib/assets/MainLogo.webp',
+			image: `${hostname}/src/lib/assets/MainLogo.webp`,
 			name: 'Wireguy Electricals Private Limited',
 			description: 'Order Payment',
 			order_id: rzp_order_id, // This is the order_id created in the backend
-			callback_url: 'http://localhost:5173/account/orders', // Your success URL
+			callback_url: `${hostname}/account/orders`, // Your success URL
 			prefill: {
 				name: customer.name,
 				email: customer.email,
