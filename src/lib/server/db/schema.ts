@@ -95,7 +95,7 @@ export const store_managers = mysqlTable('store_managers', {
 export const partners = mysqlTable('partners', {
 	id: int('id').primaryKey().autoincrement(),
 	partner_name: varchar('partner_name', { length: 255 }).notNull(),
-	partner_phone: varchar('partner_phone', { length: 255 }),
+	partner_phone: varchar('partner_phone', { length: 255 }).notNull(),
 	partner_code: varchar('partner_code', { length: 255 }).notNull().unique(),
 	overall_discount: decimal('overall_discount', { precision: 5, scale: 2 }).default('0'),
 	created_at: timestamp('uploaded_on').notNull().defaultNow()
