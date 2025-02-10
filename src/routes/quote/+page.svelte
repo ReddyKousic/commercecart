@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/MainLogo.webp';
 	let { data }: { data: PageData } = $props();
-
+	import { page } from '$app/stores';
 	let name = $state('');
 	let phone = $state('');
 	let email = $state('');
@@ -13,19 +13,31 @@
 	let partnerCode = $state('');
 	let partnerDiscountPercentage = $state(0);
 
-	let cart = $state<{ name: string, color: string, price: number, thickness: string, discountedPrice: number, quantity: number, description: string }[]>([]);
+	let cart = $state<
+		{
+			name: string;
+			color: string;
+			price: number;
+			thickness: string;
+			discountedPrice: number;
+			quantity: number;
+			description: string;
+		}[]
+	>([]);
 
 	let isDataLoaded = $state(false);
 
+	let queryparams = $page.url.searchParams;
+
 	onMount(() => {
 		// Get all details from localStorage
-		const storedName = localStorage.getItem('customer_name');
-		const storedPhone = localStorage.getItem('customer_phone');
-		const storedAddress = localStorage.getItem('customer_address');
+		const storedName = queryparams.get('customer_name');
+		const storedPhone = queryparams.get('customer_phone');
+		const storedAddress = queryparams.get('customer_address');
 		const storedCart = localStorage.getItem('cart');
-		const storedGSTIN = localStorage.getItem('gstin');
-		const storedPartnerCode = localStorage.getItem('partner_code');
-		const storedPartnerDiscount = localStorage.getItem('partner_overall_discount_percentage');
+		const storedGSTIN = queryparams.get('gstin');
+		const storedPartnerCode = queryparams.get('partner_code');
+		const storedPartnerDiscount = queryparams.get('partner_overall_discount_percentage');
 
 		// Check if required data exists
 		if (!storedName || !storedPhone || !storedAddress || !storedCart) {
@@ -47,7 +59,7 @@
 
 		// Wait for the next tick to ensure DOM is updated
 		setTimeout(() => {
-			window.print(); 
+			window.print();
 		}, 1000);
 	});
 
@@ -59,12 +71,13 @@
 	let subtotal = $state(0);
 	let partnerDiscount = $state(0);
 	let total = $state(0);
-	let deliveryCharge = 500;  // Flat delivery charge of ₹500
+	let deliveryCharge = 500; // Flat delivery charge of ₹500
 
 	// Update calculations when cart changes
 	$effect(() => {
 		subtotal = cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0);
-		partnerDiscount = partnerDiscountPercentage > 0 ? (subtotal * partnerDiscountPercentage / 100) : 0;
+		partnerDiscount =
+			partnerDiscountPercentage > 0 ? (subtotal * partnerDiscountPercentage) / 100 : 0;
 		total = subtotal - partnerDiscount + deliveryCharge;
 	});
 </script>
@@ -99,10 +112,10 @@
 						<p class="font-medium">{name}</p>
 						<p>{address}</p>
 						<p>Phone: {phone}</p>
-						{#if email !== ""}
+						{#if email !== ''}
 							<p>Email: {email}</p>
-						{/if} 
-						{#if gstin !== "No GSTIN provided"}
+						{/if}
+						{#if gstin !== 'No GSTIN provided'}
 							<p>GSTIN: {gstin}</p>
 						{/if}
 						{#if partnerCode}
@@ -110,8 +123,20 @@
 						{/if}
 					</div>
 					<div class="text-right">
-						<p class="text-sm">Quote Date: {quoteDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-						<p class="text-sm">Valid Until: {validUntil.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+						<p class="text-sm">
+							Quote Date: {quoteDate.toLocaleDateString('en-US', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</p>
+						<p class="text-sm">
+							Valid Until: {validUntil.toLocaleDateString('en-US', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</p>
 					</div>
 				</div>
 			</div>
@@ -140,7 +165,9 @@
 								</td>
 								<td>{item.quantity}</td>
 								<td>
-									<span class="line-through text-sm text-gray-400">₹{item.price.toLocaleString()}</span>
+									<span class="text-sm text-gray-400 line-through"
+										>₹{item.price.toLocaleString()}</span
+									>
 								</td>
 								<td>₹{item.discountedPrice.toLocaleString()}</td>
 								<td>₹{(item.discountedPrice * item.quantity).toLocaleString()}</td>

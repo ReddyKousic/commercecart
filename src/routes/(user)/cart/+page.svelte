@@ -101,7 +101,10 @@
 
 	$effect(() => {
 		if (form?.error) {
-			openCheckOutModal();
+			if(form.origin === 'DownloadQuote'){
+				openModal();
+			}
+			// openCheckOutModal();
 		}
 	});
 
@@ -231,7 +234,9 @@
 			{/if}
 			<p class="py-4">Your Name, Phone, Address, and Email will be included in the Quote PDF.</p>
 
-			<form method="post" onsubmit={handleDownloadQuote}>
+			<!-- <form method="post" onsubmit={handleDownloadQuote}> -->
+			<form method="post" action="?/DownloadQuote">
+
 				<label class="input input-bordered mb-4 flex items-center gap-2">
 					Name
 
@@ -265,6 +270,7 @@
 						type="email"
 						class="grow"
 						name="email"
+						
 						placeholder="Optional"
 						bind:value={customer.email}
 					/>
@@ -275,7 +281,7 @@
 					<input
 						type="text"
 						class="grow"
-						name="email"
+						name="gstin"
 						placeholder="Optional"
 						bind:value={customer.gstin}
 					/>
@@ -294,8 +300,27 @@
 					/>
 				</label>
 
-				<input type="text" class="grow" name="address" bind:value={cart} hidden />
+				<label class="input input-bordered mb-4 flex items-center gap-2">
+					Partner Code
+					<input
+						type="tel"
+						class="grow"
+						name="partner_code"
+						placeholder="K029  (Optional)"
+						minlength="3"
+						maxlength="15"
+			
+						
+					/>
+				</label>
 
+				<input type="text" class="grow" name="address" bind:value={cart} hidden />
+	
+				{#if form?.error}
+					<div class="alert alert-error mt-4 mb-4">
+						{form.error}
+					</div>
+				{/if}
 				<div class="flex items-center justify-between">
 					<a href="/login">
 						<button class="sec btn" type="button">Login?</button>
@@ -491,7 +516,7 @@
 						{/if}
 					</button>
 				</div>
-				<!-- 
+<!-- 				
 				{#if form?.error}
 					<div class="alert alert-error mt-4">
 						{form.error}

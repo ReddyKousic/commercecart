@@ -271,7 +271,7 @@
 				</div>
 			{/each}
 			<div class="pt-4 text-right font-bold">
-				Total: ₹{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+				Total: ₹{cart.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0).toFixed(2)}
 			</div>
 		</div>
 	{/if}

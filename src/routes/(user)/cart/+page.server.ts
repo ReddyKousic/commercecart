@@ -142,10 +142,13 @@ export const actions = {
 		// Debugging: Log the total amount calculated
 		console.log('Total Amount:', totalAmount);
 
-
 		if (partner_code) {
-			const partner = await db.select().from(partners).where(eq(partners.partner_code, partner_code)).limit(1);
-			console.log(partner_code)
+			const partner = await db
+				.select()
+				.from(partners)
+				.where(eq(partners.partner_code, partner_code))
+				.limit(1);
+			console.log(partner_code);
 			console.log('Partner:', partner);
 			if (partner.length === 0) {
 				return fail(400, {
@@ -164,10 +167,7 @@ export const actions = {
 			// Debugging: Log the total amount calculated
 
 			console.log('Total Amount after partner discount:', totalAmount);
-
-
 		}
-		
 
 		// Insert order into the database
 		const order = await db
@@ -207,6 +207,50 @@ export const actions = {
 			rzp_order_id: rzp_order.id,
 			rzp_order_amount: Math.round(totalAmount) * 100
 		}; // Return a success response with the order ID
+	},
+
+	DownloadQuote: async ({ request }) => {
+		const data = await request.formData();
+		const name = data.get('name') as string;
+		const phone = data.get('phone') as string;
+		const email = data.get('email') as string;
+		const gstin = data.get('gstin') as string;
+		const address = data.get('address') as string;
+		const partner_code = data.get('partner_code') as string;
+
+
+
+		// Check if the partner code is valid and get the partner discount
+
+		let discount = 0;
+
+		if (partner_code) {
+			const partner = await db
+				.select()
+				.from(partners)
+				.where(eq(partners.partner_code, partner_code))
+				.limit(1);
+
+			if (partner.length === 0) {
+				return fail(400, {
+					origin: 'DownloadQuote',
+					error: 'Invalid Partner Code'
+				});
+			}
+
+			discount = partner[0].overall_discount ? parseFloat(partner[0].overall_discount) : 0;
+		}
+
+		// redirect to the quote download page with the details and discount percentage
+		redirect(302, `/quote?customer_name=${name}&customer_phone=${phone}&email=${email}&gstin=${gstin}&customer_address=${address}&partner_code=${partner_code}&partner_overall_discount_percentage=${discount}`);
+	
+		
+		
+		
+		
+		
+		
+		
 	}
 };
 
